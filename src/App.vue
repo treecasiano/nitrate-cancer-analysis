@@ -1,9 +1,8 @@
 <template>
   <v-app id="app" app>
     <div id="nav">
-      <router-link to="/">Home</router-link>|
-      <router-link to="/about">About</router-link>|
-      <router-link to="/map">Map</router-link>
+      <router-link to="/">Home</router-link>&nbsp;|
+      <router-link to="/about">About</router-link>
     </div>
     <router-view />
   </v-app>
@@ -18,7 +17,7 @@
   color: var(--v-primary-base);
 }
 #nav {
-  padding: 30px;
+  padding: 10px;
 }
 
 #nav a {
