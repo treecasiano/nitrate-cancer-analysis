@@ -1,0 +1,9 @@
+{
+  "baseUrl": "http://localhost:8080",
+  "chromeWebSecurity": false,
+  "numTestsKeptInMemory": 0,
+  "pageLoadTimeout": 100000,
+  "requestTimeout": 60000,
+  "responseTimeout": 50000,
+  "video": false
+}
