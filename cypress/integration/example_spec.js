@@ -2,11 +2,10 @@ describe("Example", () => {
   const markersArray = ".leaflet-marker-pane img";
 
   beforeEach(() => {
-    cy.visit("/map");
+    cy.visit("/");
   });
 
   it("Displays 7 markers with popups on a map", () => {
-    cy.url().should("include", "/map");
     cy.get(markersArray).should("have.length", 7);
     cy.get(markersArray)
       .first()
