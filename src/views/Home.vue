@@ -1,7 +1,7 @@
 <template>
   <div>
     <MainHeading />
-    <MapComponent height="90" loading="loading" offsetHeight="100" width="100" />
+    <MapComponent height="95" loading="loading" offsetHeight="100" width="100" />
   </div>
 </template>
 
