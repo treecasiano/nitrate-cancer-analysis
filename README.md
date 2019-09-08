@@ -140,6 +140,12 @@ Install Prettier for VS Code: https://marketplace.visualstudio.com/items?itemNam
 
 ## Testing
 
+### View and test API endpoints with Swagger UI
+
+With the app running, go to http://localhost:3000/swagger-ui/?url=/api/docs.
+
+If you perform PUT or POST operations via these endpoints and wish to reset the database back to what has been saved in the dumpfile, delete the database with `docker rm -f nitrate-cancer-analysis` and use the `./create.sh` and `./restore.sh` commands from the `db` directory. Eventually database utilities will be added that do this programmatically, allowing the automated tests to clear and reset the database so that the PUT and POST routes can be tested without harming the development data. Until that time, the brute force method does the trick.
+
 ### Client-side Testing: End-to-End Testing with Cypress
 
 With the app running, the Cypress tests will run with the command `npm run cypress`.

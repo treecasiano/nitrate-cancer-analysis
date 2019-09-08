@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const express = require("express");
 const expressOpenapi = require("express-openapi");
 const path = require("path");
+const pathToSwaggerUi = require("swagger-ui-dist").absolutePath();
 const pkg = require("./package");
 
 const ExampleService = require("./lib/exampleService");
@@ -59,7 +60,7 @@ process.env.TZ = "UTC";
       next();
     });
 
-    app.use("/swagger-ui", express.static("swagger-ui-3.18.3/dist"));
+    app.use("/swagger-ui", express.static(pathToSwaggerUi));
 
     // Middleware for disabling caching on api routes
     app.use("/api", (req, res, next) => {
