@@ -1,10 +1,11 @@
+const apiDoc = require("./routes/api-doc");
 const bodyParser = require("body-parser");
 const config = require("config");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const expressOpenapi = require("express-openapi");
 const path = require("path");
-const pkg = require("./package");
+const pathToSwaggerUi = require("swagger-ui-dist").absolutePath();
 
 const ExampleService = require("./lib/exampleService");
 const pgFactory = require("./lib/pg");
@@ -59,7 +60,7 @@ process.env.TZ = "UTC";
       next();
     });
 
-    app.use("/swagger-ui", express.static("swagger-ui-3.18.3/dist"));
+    app.use("/swagger-ui", express.static(pathToSwaggerUi));
 
     // Middleware for disabling caching on api routes
     app.use("/api", (req, res, next) => {
@@ -72,37 +73,7 @@ process.env.TZ = "UTC";
 
     expressOpenapi.initialize({
       app,
-      apiDoc: {
-        basePath: "/api",
-        definitions: {},
-        info: {
-          title: pkg.name,
-          version: pkg.version,
-        },
-        paths: {},
-        swagger: "2.0",
-        "x-express-openapi-schema-extension": {
-          definitions: {
-            schema: {
-              properties: {
-                anyOf: {
-                  type: "array",
-                  items: {
-                    $ref: "#/definitions/schema",
-                  },
-                },
-                oneOf: {
-                  type: "array",
-                  minItems: 1,
-                  items: {
-                    $ref: "#/definitions/schema",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      apiDoc,
       dependencies: {
         env,
         exampleService,
