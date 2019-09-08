@@ -47,8 +47,8 @@
 </template>
 
 <script>
-const defaultCenter = [45.5155, -122.6793];
-const defaultZoom = 3;
+const defaultCenter = [44.6656476, -90.2436474];
+const defaultZoom = 6;
 
 export default {
   name: "MapComponent",
