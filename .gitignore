@@ -6,43 +6,32 @@ scratch.md
 ### Mac
 **/.DS_Store
 
-### API
-config/
-config.zip
-config/default.json
 coverage/
 node_modules/
-
-### CLIENT
-/dist
-client/node_modules
-client/dist
-client/config
-
 cypress/integration/examples/
 cypress/fixtures/example.json
 cypress/videos/
 cypress/screenshots/
 
 # local env files
-client/.env.local
-client/.env.*.local
+.env.local
+.env.*.local
 
 # Log files
-client/npm-debug.log*
-client/yarn-debug.log*
-client/yarn-error.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 yarn-error.log
 npm-debug.log*
 yarn-debug.log*
 
 # Editor directories and files
 **/.idea
-client/*.suo
-client/*.ntvs*
-client/*.njsproj
-client/*.sln
-client/*.sw*
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
 
 .idea
 *.suo

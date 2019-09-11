@@ -29,3 +29,8 @@
   color: var(--v-secondary-base);
 }
 </style>
+
+// TODO: UPDATE README (MOVE IMPROVED TEXT TO BOILERPLATE)
+
+<style scoped>
+</style>
