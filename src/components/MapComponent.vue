@@ -25,12 +25,8 @@
           >
             <l-popup>
               <div>
-                <strong>name</strong>
-                : {{item.props.first_name}} {{item.props.last_name}}
-              </div>
-              <div>
-                <strong>favorite color:</strong>
-                {{item.props.favorite_color}}
+                <strong>Nitrate Rate</strong>
+                : {{item.props.nitr_ran}}
               </div>
             </l-popup>
           </l-marker>
@@ -48,20 +44,24 @@
 
 <script>
 const defaultCenter = [44.6656476, -90.2436474];
-const defaultZoom = 3;
+const defaultZoom = 6;
 
 export default {
   name: "MapComponent",
   computed: {
-    exampleGeoJSON() {
-      return this.$store.state.example.exampleGeoJSON;
+    // exampleGeoJSON() {
+    //   return this.$store.state.example.exampleGeoJSON;
+    // },
+    wellsData() {
+      return this.$store.state.wells.data;
     },
   },
   async created() {
     this.loading = true;
-    await this.$store.dispatch("example/getExampleGeoJSON");
+    // await this.$store.dispatch("example/getExampleGeoJSON");
+    await this.$store.dispatch("wells/getData");
     this.loading = false;
-    this.createMarkers(this.exampleGeoJSON);
+    this.createMarkers(this.wellsData);
   },
   data() {
     return {
@@ -86,7 +86,7 @@ export default {
       this.center = center;
     },
     createMarkers() {
-      const markersArray = this.exampleGeoJSON["features"].map(feature => {
+      const markersArray = this.wellsData["features"].map(feature => {
         // eslint-disable-next-line
         let markerObject = L.latLng(
           feature["geometry"]["coordinates"][1],
