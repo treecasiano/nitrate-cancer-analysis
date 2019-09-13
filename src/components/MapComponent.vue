@@ -16,12 +16,18 @@
         <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
 
         <div>
-          <l-marker
+          <l-circle-marker
             v-for="(item, index) in markersArray"
             v-bind:item="item"
             v-bind:index="index"
             v-bind:key="index"
             :lat-lng="item"
+            :radius="3"
+            :color="wellDataColor"
+            :fillColor="wellDataFillColor"
+            :weight="1"
+            :opacity="1"
+            :fillOpacity="1"
           >
             <l-popup>
               <div>
@@ -29,7 +35,7 @@
                 : {{item.props.nitr_ran}}
               </div>
             </l-popup>
-          </l-marker>
+          </l-circle-marker>
         </div>
         <l-control-zoom position="topright"></l-control-zoom>
         <l-control position="topleft">
@@ -44,24 +50,22 @@
 
 <script>
 const defaultCenter = [44.6656476, -90.2436474];
-const defaultZoom = 6;
+const defaultZoom = 7;
 
 export default {
   name: "MapComponent",
   computed: {
-    // exampleGeoJSON() {
-    //   return this.$store.state.example.exampleGeoJSON;
-    // },
     wellsData() {
       return this.$store.state.wells.data;
     },
+    wellsDataLoading() {
+      return this.$store.state.wells.loading;
+    },
   },
-  async created() {
-    this.loading = true;
-    // await this.$store.dispatch("example/getExampleGeoJSON");
-    await this.$store.dispatch("wells/getData");
-    this.loading = false;
-    this.createMarkers(this.wellsData);
+  created() {
+    if (this.wellsData.features) {
+      this.createMarkers(this.wellsData);
+    }
   },
   data() {
     return {
@@ -76,6 +80,8 @@ export default {
       loading: false,
       maxZoom: 18,
       markersArray: [],
+      wellDataColor: "#C0C0C0",
+      wellDataFillColor: "#FF5733",
     };
   },
   methods: {
@@ -111,6 +117,11 @@ export default {
     height: String,
     offsetHeight: String,
     width: String,
+  },
+  watch: {
+    wellsData() {
+      this.createMarkers(this.wellsData);
+    },
   },
 };
 </script>

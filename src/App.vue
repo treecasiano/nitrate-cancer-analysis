@@ -26,6 +26,19 @@
   </v-app>
 </template>
 
+<script>
+export default {
+  computed: {
+    wellsData() {
+      return this.$store.state.wells.data;
+    },
+  },
+  async created() {
+    await this.$store.dispatch("wells/getData");
+  },
+  data: () => ({}),
+};
+</script>
 <style>
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
