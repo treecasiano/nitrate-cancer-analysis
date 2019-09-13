@@ -12,7 +12,15 @@
         :options="{zoomControl: false}"
         v-bind:style="`height: calc(${height}vh - ${offsetHeight}px); width: ${width}%;`"
       >
+        <l-control position="topleft">
+          <MapControls />
+        </l-control>
         <l-control-scale position="bottomleft"></l-control-scale>
+        <l-control position="topright">
+          <v-btn dark color="primary" @click="resetMapView">
+            <v-icon>home</v-icon>
+          </v-btn>
+        </l-control>
         <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
 
         <div>
@@ -22,7 +30,7 @@
             v-bind:index="index"
             v-bind:key="index"
             :lat-lng="item"
-            :radius="3"
+            :radius="5"
             :color="wellDataColor"
             :fillColor="wellDataFillColor"
             :weight="1"
@@ -37,23 +45,23 @@
             </l-popup>
           </l-circle-marker>
         </div>
-        <l-control-zoom position="topright"></l-control-zoom>
-        <l-control position="topleft">
-          <v-btn dark color="primary" @click="resetMapView">
-            <v-icon>home</v-icon>
-          </v-btn>
-        </l-control>
+        <l-control-zoom position="bottomright"></l-control-zoom>
       </l-map>
     </v-layout>
   </div>
 </template>
 
 <script>
+import MapControls from "@/components/MapControls.vue";
+
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
 
 export default {
   name: "MapComponent",
+  components: {
+    MapControls,
+  },
   computed: {
     wellsData() {
       return this.$store.state.wells.data;
