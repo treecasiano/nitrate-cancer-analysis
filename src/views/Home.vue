@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MapComponent height="100" loading="loading" offsetHeight="1" width="100" />
+    <MapComponent height="100" loading="loading" offsetHeight="90" width="100" />
   </div>
 </template>
 
