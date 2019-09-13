@@ -91,8 +91,8 @@ export default {
     centerUpdated(center) {
       this.center = center;
     },
-    createMarkers() {
-      const markersArray = this.wellsData["features"].map(feature => {
+    createMarkers(geojson) {
+      const markersArray = geojson["features"].map(feature => {
         // eslint-disable-next-line
         let markerObject = L.latLng(
           feature["geometry"]["coordinates"][1],
