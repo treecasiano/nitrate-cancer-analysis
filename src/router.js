@@ -6,6 +6,7 @@ Vue.use(Router);
 
 export default new Router({
   mode: "history",
+  base: "/nitrate-cancer-analysis/",
   routes: [
     {
       path: "/",
