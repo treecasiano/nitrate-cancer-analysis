@@ -5,6 +5,7 @@
   "author": "Tree Casiano",
   "repository": "https://github.com/treecasiano/nitrate-cancer-analysis.git",
   "scripts": {
+    "deploy": "npm run build; push-dir --dir=dist --branch=gh-pages --cleanup",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
