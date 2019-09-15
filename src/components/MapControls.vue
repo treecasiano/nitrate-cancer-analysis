@@ -22,6 +22,7 @@
                 v-model="wellsDisplayStatus"
                 :label="`Well Locations`"
                 data-cy="checkbox--wells"
+                color="primary"
               ></v-checkbox>
             </v-flex>
           </v-layout>
