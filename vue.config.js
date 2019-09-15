@@ -1,3 +1,4 @@
 module.exports = {
-  publicPath: "/nitrate-cancer-analysis/",
+  publicPath:
+    process.env.NODE_ENV === "production" ? "/nitrate-cancer-analysis/" : "/",
 };
