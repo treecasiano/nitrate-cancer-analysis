@@ -37,6 +37,7 @@
     "jest": "^24.9.0",
     "material-design-icons-iconfont": "^5.0.1",
     "prettier": "^1.18.2",
+    "push-dir": "^0.4.1",
     "sass": "^1.17.4",
     "sass-loader": "^7.1.0",
     "vue-cli-plugin-vuetify": "^0.6.3",
