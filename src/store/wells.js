@@ -1,6 +1,9 @@
 import wellsApi from "../api/wells";
 
 const actions = {
+  async displayData({ commit, status }) {
+    return commit("setDisplayStatus", status);
+  },
   async getData({ commit }) {
     commit("setLoadingStatus", true);
     const wells = await wellsApi.getData();
@@ -16,10 +19,14 @@ const mutations = {
   setLoadingStatus(state, loading) {
     state.loading = loading;
   },
+  setDisplayStatus(state, status) {
+    state.displayStatus = status;
+  },
 };
 
 const state = {
   data: {},
+  displayStatus: false,
   loading: false,
 };
 
