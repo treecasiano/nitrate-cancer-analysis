@@ -23,7 +23,7 @@
         </l-control>
         <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
 
-        <div>
+        <div v-if="displayWells">
           <l-circle-marker
             v-for="(item, index) in markersArray"
             v-bind:item="item"
@@ -53,6 +53,7 @@
 
 <script>
 import MapControls from "@/components/MapControls.vue";
+import { mapState } from "vuex";
 
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
@@ -69,6 +70,9 @@ export default {
     wellsDataLoading() {
       return this.$store.state.wells.loading;
     },
+    ...mapState({
+      displayWells: state => state.wells.displayStatus,
+    }),
   },
   created() {
     if (this.wellsData.features) {
