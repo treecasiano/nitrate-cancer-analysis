@@ -32,18 +32,15 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapMutations } from "vuex";
 
 export default {
   computed: {
     wellsDisplayStatus: {
       get() {
-        const displayStatus = this.$store.state.wells.displayStatus;
-        console.log("displayStatus", displayStatus);
         return this.$store.state.wells.displayStatus;
       },
       set(value) {
-        console.log("value", value);
         this.displayWells(value);
       },
     },
