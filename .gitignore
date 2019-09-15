@@ -13,6 +13,8 @@ cypress/fixtures/example.json
 cypress/videos/
 cypress/screenshots/
 
+dist/
+
 # local env files
 .env.local
 .env.*.local
