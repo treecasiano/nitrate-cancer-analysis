@@ -1,4 +1,4 @@
-import wellsApi from "../api/wells";
+import tractsApi from "../api/tracts";
 
 const actions = {
   async displayData({ commit, status }) {
@@ -6,7 +6,7 @@ const actions = {
   },
   async getData({ commit }) {
     commit("setLoadingStatus", true);
-    const results = await wellsApi.getData();
+    const results = await tractsApi.getData();
     commit("setLoadingStatus", false);
     return commit("setData", results.data);
   },

@@ -45,6 +45,9 @@
             </l-popup>
           </l-circle-marker>
         </div>
+        <div v-if="displayTracts">
+          <l-geo-json :geojson="tractsData" :options="options" :options-style="styleFunction"></l-geo-json>
+        </div>
         <l-control-zoom position="bottomright"></l-control-zoom>
       </l-map>
     </v-layout>
@@ -58,20 +61,48 @@ import { mapState } from "vuex";
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
 
+const defaultStyle = {
+  weight: 0.75,
+  color: "#A9A9A9",
+  opacity: 1,
+  fillColor: "#B1B6B6",
+  fillOpacity: 0.25,
+};
+
 export default {
   name: "MapComponent",
   components: {
     MapControls,
   },
   computed: {
-    wellsData() {
-      return this.$store.state.wells.data;
+    options() {
+      return {
+        onEachFeature: this.onEachFeatureFunction,
+      };
     },
-    wellsDataLoading() {
-      return this.$store.state.wells.loading;
+    styleFunction() {
+      return () => {
+        return defaultStyle;
+      };
+    },
+    onEachFeatureFunction() {
+      return (feature, layer) => {
+        const popupContent = this.createCensusTractContent(feature.properties);
+        this.setDefaultStyles(layer, feature);
+        layer.bindPopup(popupContent, {
+          permanent: false,
+          sticky: true,
+          className: "popup--census",
+        });
+      };
     },
     ...mapState({
+      displayTracts: state => state.tracts.displayStatus,
       displayWells: state => state.wells.displayStatus,
+      tractsData: state => state.tracts.data,
+      tractsDataLoading: state => state.tracts.loading,
+      wellsData: state => state.wells.data,
+      wellsDataLoading: state => state.wells.loading,
     }),
   },
   created() {
@@ -103,6 +134,11 @@ export default {
     centerUpdated(center) {
       this.center = center;
     },
+    createCensusTractContent(props) {
+      console.log(props);
+      let propertyString = `Cancer Rate: ${props.canrate}`;
+      return propertyString;
+    },
     createMarkers(geojson) {
       const markersArray = geojson["features"].map(feature => {
         // eslint-disable-next-line
@@ -124,6 +160,9 @@ export default {
       this.$refs.map.setCenter(defaultCenter);
       this.$refs.map.setZoom(defaultZoom);
     },
+    setDefaultStyles(layer, feature) {
+      layer.setStyle(defaultStyle);
+    },
   },
   props: {
     height: String,
@@ -139,7 +178,13 @@ export default {
 </script>
 
 
-
+<style>
+.popup--census {
+  border-radius: 0 !important;
+  text-align: left;
+  color: var(--v-primary-darken3) !important;
+}
+</style>
 
 
 

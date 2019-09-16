@@ -24,6 +24,12 @@
                 data-cy="checkbox--wells"
                 color="primary"
               ></v-checkbox>
+              <v-checkbox
+                v-model="tractsDisplayStatus"
+                :label="`Census Tracts`"
+                data-cy="checkbox--tracts"
+                color="primary"
+              ></v-checkbox>
             </v-flex>
           </v-layout>
         </v-container>
@@ -37,6 +43,14 @@ import { mapMutations } from "vuex";
 
 export default {
   computed: {
+    tractsDisplayStatus: {
+      get() {
+        return this.$store.state.tracts.displayStatus;
+      },
+      set(value) {
+        this.displayTracts(value);
+      },
+    },
     wellsDisplayStatus: {
       get() {
         return this.$store.state.wells.displayStatus;
@@ -54,6 +68,7 @@ export default {
   },
   methods: {
     ...mapMutations({
+      displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
     }),
   },
