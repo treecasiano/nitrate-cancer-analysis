@@ -12,11 +12,11 @@
         :options="{zoomControl: false}"
         v-bind:style="`height: calc(${height}vh - ${offsetHeight}px); width: ${width}%;`"
       >
-        <l-control position="topleft">
+        <l-control position="topright">
           <MapControls />
         </l-control>
         <l-control-scale position="bottomleft"></l-control-scale>
-        <l-control position="topright">
+        <l-control position="topleft">
           <v-btn dark color="primary" @click="resetMapView">
             <v-icon>home</v-icon>
           </v-btn>
@@ -30,7 +30,7 @@
             v-bind:index="index"
             v-bind:key="index"
             :lat-lng="item"
-            :radius="5"
+            :radius="3"
             :color="wellDataColor"
             :fillColor="wellDataFillColor"
             :weight="1"
@@ -68,7 +68,13 @@ const defaultStyle = {
   fillColor: "#B1B6B6",
   fillOpacity: 0.25,
 };
-
+const highlightStyle = {
+  weight: 1.5,
+  color: "rgb(124, 179, 66)",
+  opacity: 0.8,
+  fillColor: "#B1B6B6",
+  fillOpacity: 0.1,
+};
 export default {
   name: "MapComponent",
   components: {
@@ -113,7 +119,7 @@ export default {
   data() {
     return {
       url:
-        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
       zoom: defaultZoom,
       center: defaultCenter,
       bounds: null,
@@ -124,7 +130,7 @@ export default {
       maxZoom: 18,
       markersArray: [],
       wellDataColor: "#C0C0C0",
-      wellDataFillColor: "#FF5733",
+      wellDataFillColor: "rgb(0, 131, 143)",
     };
   },
   methods: {
@@ -135,8 +141,7 @@ export default {
       this.center = center;
     },
     createCensusTractContent(props) {
-      console.log(props);
-      let propertyString = `Cancer Rate: ${props.canrate}`;
+      let propertyString = `<strong>Cancer Rate:</strong> ${props.canrate}`;
       return propertyString;
     },
     createMarkers(geojson) {
@@ -162,6 +167,12 @@ export default {
     },
     setDefaultStyles(layer, feature) {
       layer.setStyle(defaultStyle);
+      layer.on("mouseover", () => {
+        layer.setStyle(highlightStyle);
+      });
+      layer.on("mouseout", () => {
+        layer.setStyle(defaultStyle);
+      });
     },
   },
   props: {
@@ -177,12 +188,27 @@ export default {
 };
 </script>
 
-
 <style>
-.popup--census {
+/* leaflet style overrides */
+
+.leaflet-control {
+  font-family: "Muli" !important;
+}
+
+input {
+  font-family: "Muli" !important;
+}
+
+.leaflet-popup-content-wrapper {
   border-radius: 0 !important;
+  font-family: "Muli" !important;
+  opacity: 0.95 !important;
+  color: var(--v-primary-base-darken3);
+}
+
+.popup--census {
+  border-radius: 10% !important;
   text-align: left;
-  color: var(--v-primary-darken3) !important;
 }
 </style>
 
