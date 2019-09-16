@@ -1,13 +1,19 @@
 <template>
   <v-card>
-    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent>
+    <v-navigation-drawer
+      v-model="drawer"
+      :mini-variant.sync="mini"
+      permanent
+      style="max-width: 200px;"
+    >
       <template v-slot:prepend>
-        <v-list-item v-if="mini">
+        <div v-if="mini">
           <v-btn icon @click.stop="mini = !mini">
             <v-icon>mdi-layers</v-icon>
           </v-btn>
-        </v-list-item>
+        </div>
         <v-list-item v-if="!mini">
+          <v-spacer></v-spacer>
           <v-btn small icon @click.stop="mini = !mini">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -15,7 +21,6 @@
         <v-container v-if="!mini">
           <v-layout>
             <v-flex>
-              <v-divider class="mb-3"></v-divider>
               <v-checkbox
                 v-model="wellsDisplayStatus"
                 :label="`Well Locations`"
@@ -84,6 +89,10 @@ export default {
 .v-input--slot {
   margin: 0 !important;
   padding: 0 !important;
+}
+
+.v-input--selection-controls__input {
+  height: 0 !important;
 }
 </style>
 
