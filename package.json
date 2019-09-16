@@ -5,6 +5,7 @@
   "author": "Tree Casiano",
   "repository": "https://github.com/treecasiano/nitrate-cancer-analysis.git",
   "scripts": {
+    "deploy": "npm run build; push-dir --dir=dist --branch=gh-pages --cleanup --allow-unclean",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
@@ -37,6 +38,7 @@
     "jest": "^24.9.0",
     "material-design-icons-iconfont": "^5.0.1",
     "prettier": "^1.18.2",
+    "push-dir": "^0.4.1",
     "sass": "^1.17.4",
     "sass-loader": "^7.1.0",
     "vue-cli-plugin-vuetify": "^0.6.3",

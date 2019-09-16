@@ -1,10 +1,10 @@
 import axios from "axios";
 
 export default {
-  getGeoJSON() {
+  getData() {
     return axios({
       method: "get",
-      url: `exampleGeoJSON.geojson`,
+      url: `tracts.geojson`,
     });
   },
 };

@@ -12,61 +12,114 @@
         :options="{zoomControl: false}"
         v-bind:style="`height: calc(${height}vh - ${offsetHeight}px); width: ${width}%;`"
       >
+        <l-control position="topright">
+          <MapLayers />
+        </l-control>
         <l-control-scale position="bottomleft"></l-control-scale>
-        <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-
-        <div>
-          <l-marker
-            v-for="(item, index) in markersArray"
-            v-bind:item="item"
-            v-bind:index="index"
-            v-bind:key="index"
-            :lat-lng="item"
-          >
-            <l-popup>
-              <div>
-                <strong>name</strong>
-                : {{item.props.first_name}} {{item.props.last_name}}
-              </div>
-              <div>
-                <strong>favorite color:</strong>
-                {{item.props.favorite_color}}
-              </div>
-            </l-popup>
-          </l-marker>
-        </div>
-        <l-control-zoom position="topright"></l-control-zoom>
         <l-control position="topleft">
           <v-btn dark color="primary" @click="resetMapView">
             <v-icon>home</v-icon>
           </v-btn>
         </l-control>
+        <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+
+        <div v-if="displayWells">
+          <l-circle-marker
+            v-for="(item, index) in markersArray"
+            v-bind:item="item"
+            v-bind:index="index"
+            v-bind:key="index"
+            :lat-lng="item"
+            :radius="3"
+            :color="wellDataColor"
+            :fillColor="wellDataFillColor"
+            :weight="1"
+            :opacity="1"
+            :fillOpacity="1"
+          >
+            <l-popup>
+              <div>
+                <strong>Nitrate Rate</strong>
+                : {{item.props.nitr_ran}}
+              </div>
+            </l-popup>
+          </l-circle-marker>
+        </div>
+        <div v-if="displayTracts">
+          <l-geo-json :geojson="tractsData" :options="options" :options-style="styleFunction"></l-geo-json>
+        </div>
+        <l-control-zoom position="bottomright"></l-control-zoom>
       </l-map>
     </v-layout>
   </div>
 </template>
 
 <script>
-const defaultCenter = [44.6656476, -90.2436474];
-const defaultZoom = 3;
+import MapLayers from "@/components/MapLayers.vue";
+import { mapState } from "vuex";
 
+const defaultCenter = [44.6656476, -90.2436474];
+const defaultZoom = 7;
+
+const defaultStyle = {
+  weight: 0.75,
+  color: "#A9A9A9",
+  opacity: 1,
+  fillColor: "#B1B6B6",
+  fillOpacity: 0.25,
+};
+const highlightStyle = {
+  weight: 1.5,
+  color: "rgb(124, 179, 66)",
+  opacity: 0.8,
+  fillColor: "#B1B6B6",
+  fillOpacity: 0.1,
+};
 export default {
   name: "MapComponent",
-  computed: {
-    exampleGeoJSON() {
-      return this.$store.state.example.exampleGeoJSON;
-    },
+  components: {
+    MapLayers,
   },
-  async created() {
-    this.loading = true;
-    await this.$store.dispatch("example/getExampleGeoJSON");
-    this.loading = false;
-    this.createMarkers(this.exampleGeoJSON);
+  computed: {
+    options() {
+      return {
+        onEachFeature: this.onEachFeatureFunction,
+      };
+    },
+    styleFunction() {
+      return () => {
+        return defaultStyle;
+      };
+    },
+    onEachFeatureFunction() {
+      return (feature, layer) => {
+        const popupContent = this.createCensusTractContent(feature.properties);
+        this.setDefaultStyles(layer, feature);
+        layer.bindPopup(popupContent, {
+          permanent: false,
+          sticky: true,
+          className: "popup--census",
+        });
+      };
+    },
+    ...mapState({
+      displayTracts: state => state.tracts.displayStatus,
+      displayWells: state => state.wells.displayStatus,
+      tractsData: state => state.tracts.data,
+      tractsDataLoading: state => state.tracts.loading,
+      wellsData: state => state.wells.data,
+      wellsDataLoading: state => state.wells.loading,
+    }),
+  },
+  created() {
+    if (this.wellsData.features) {
+      this.createMarkers(this.wellsData);
+    }
   },
   data() {
     return {
       url:
-        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
       zoom: defaultZoom,
       center: defaultCenter,
       bounds: null,
@@ -76,6 +129,8 @@ export default {
       loading: false,
       maxZoom: 18,
       markersArray: [],
+      wellDataColor: "#C0C0C0",
+      wellDataFillColor: "rgb(0, 131, 143)",
     };
   },
   methods: {
@@ -85,8 +140,12 @@ export default {
     centerUpdated(center) {
       this.center = center;
     },
-    createMarkers() {
-      const markersArray = this.exampleGeoJSON["features"].map(feature => {
+    createCensusTractContent(props) {
+      let propertyString = `<strong>Cancer Rate:</strong> ${props.canrate}`;
+      return propertyString;
+    },
+    createMarkers(geojson) {
+      const markersArray = geojson["features"].map(feature => {
         // eslint-disable-next-line
         let markerObject = L.latLng(
           feature["geometry"]["coordinates"][1],
@@ -106,17 +165,52 @@ export default {
       this.$refs.map.setCenter(defaultCenter);
       this.$refs.map.setZoom(defaultZoom);
     },
+    setDefaultStyles(layer, feature) {
+      layer.setStyle(defaultStyle);
+      layer.on("mouseover", () => {
+        layer.setStyle(highlightStyle);
+      });
+      layer.on("mouseout", () => {
+        layer.setStyle(defaultStyle);
+      });
+    },
   },
   props: {
     height: String,
     offsetHeight: String,
     width: String,
   },
+  watch: {
+    wellsData() {
+      this.createMarkers(this.wellsData);
+    },
+  },
 };
 </script>
 
+<style>
+/* leaflet style overrides */
 
+.leaflet-control {
+  font-family: "Muli" !important;
+}
 
+input {
+  font-family: "Muli" !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0 !important;
+  font-family: "Muli" !important;
+  opacity: 0.95 !important;
+  color: var(--v-primary-base-darken3);
+}
+
+.popup--census {
+  border-radius: 10% !important;
+  text-align: left;
+}
+</style>
 
 
 
