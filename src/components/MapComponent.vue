@@ -13,7 +13,7 @@
         v-bind:style="`height: calc(${height}vh - ${offsetHeight}px); width: ${width}%;`"
       >
         <l-control position="topright">
-          <MapControls />
+          <MapLayers />
         </l-control>
         <l-control-scale position="bottomleft"></l-control-scale>
         <l-control position="topleft">
@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import MapControls from "@/components/MapControls.vue";
+import MapLayers from "@/components/MapLayers.vue";
 import { mapState } from "vuex";
 
 const defaultCenter = [44.6656476, -90.2436474];
@@ -78,7 +78,7 @@ const highlightStyle = {
 export default {
   name: "MapComponent",
   components: {
-    MapControls,
+    MapLayers,
   },
   computed: {
     options() {
