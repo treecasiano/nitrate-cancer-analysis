@@ -28,13 +28,10 @@
 
 <script>
 export default {
-  computed: {
-    wellsData() {
-      return this.$store.state.wells.data;
-    },
-  },
   async created() {
+    // TODO: Implement promise.all
     await this.$store.dispatch("wells/getData");
+    await this.$store.dispatch("tracts/getData");
   },
   data: () => ({}),
 };
