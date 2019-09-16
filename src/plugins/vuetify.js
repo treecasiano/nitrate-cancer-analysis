@@ -12,8 +12,8 @@ export default new Vuetify({
   theme: {
     themes: {
       light: {
-        primary: colors.deepPurple.darken4,
-        secondary: colors.orange,
+        primary: colors.cyan.darken3,
+        secondary: colors.lightGreen.darken1,
         accent: colors.lime,
         anchor: colors.blue,
         error: colors.red,

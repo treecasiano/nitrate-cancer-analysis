@@ -8,16 +8,14 @@
           </v-btn>
         </v-list-item>
         <v-list-item v-if="!mini">
-          <v-list-item-title>Map Controls</v-list-item-title>
-
-          <v-btn icon @click.stop="mini = !mini">
-            <v-icon>mdi-chevron-left</v-icon>
+          <v-btn small icon @click.stop="mini = !mini">
+            <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-list-item>
         <v-container v-if="!mini">
           <v-layout>
             <v-flex>
-              <v-divider></v-divider>
+              <v-divider class="mb-3"></v-divider>
               <v-checkbox
                 v-model="wellsDisplayStatus"
                 :label="`Well Locations`"
@@ -63,7 +61,7 @@ export default {
   data() {
     return {
       drawer: true,
-      mini: false,
+      mini: true,
     };
   },
   methods: {
@@ -74,4 +72,18 @@ export default {
   },
 };
 </script>
+
+<style>
+/* vuetify style overrides */
+
+.v-input--checkbox {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.v-input--slot {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+</style>
 
