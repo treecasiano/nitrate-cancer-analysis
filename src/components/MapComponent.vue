@@ -46,8 +46,18 @@
           </l-circle-marker>
         </div>
         <div v-if="displayTracts">
-          <l-geo-json :geojson="tractsData" :options="options" :options-style="styleFunction"></l-geo-json>
+          <l-geo-json
+            :geojson="tractsData"
+            :options="optionsCensusTracts"
+            :options-style="stylesCensusTracts"
+          ></l-geo-json>
         </div>
+        <div v-if="displayWellsIDW && idwWells.features">
+          <l-geo-json :geojson="idwWells" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
+        </div>
+        <l-control position="topleft">
+          <MapControls />
+        </l-control>
         <l-control-zoom position="bottomright"></l-control-zoom>
       </l-map>
     </v-layout>
@@ -56,10 +66,13 @@
 
 <script>
 import MapLayers from "@/components/MapLayers.vue";
+import MapControls from "@/components/MapControls.vue";
 import { mapState } from "vuex";
 
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
+
+// TODO(): Pull the styles into a json object and import
 
 const defaultStyle = {
   weight: 0.75,
@@ -68,7 +81,24 @@ const defaultStyle = {
   fillColor: "#B1B6B6",
   fillOpacity: 0.25,
 };
+
+const defaultStyleIDW = {
+  weight: 0.75,
+  color: "#A9A9A9",
+  opacity: 1,
+  fillColor: "#B1B6B6",
+  fillOpacity: 0.2,
+};
+
 const highlightStyle = {
+  weight: 1.5,
+  color: "rgb(124, 179, 66)",
+  opacity: 0.8,
+  fillColor: "#B1B6B6",
+  fillOpacity: 0.1,
+};
+
+const highlightStyleIDW = {
   weight: 1.5,
   color: "rgb(124, 179, 66)",
   opacity: 0.8,
@@ -78,20 +108,31 @@ const highlightStyle = {
 export default {
   name: "MapComponent",
   components: {
+    MapControls,
     MapLayers,
   },
   computed: {
-    options() {
+    optionsCensusTracts() {
       return {
-        onEachFeature: this.onEachFeatureFunction,
+        onEachFeature: this.onEachCensusTractFeature,
       };
     },
-    styleFunction() {
+    optionsIDW() {
+      return {
+        onEachFeature: this.onEachIDWFeature,
+      };
+    },
+    stylesCensusTracts() {
       return () => {
         return defaultStyle;
       };
     },
-    onEachFeatureFunction() {
+    stylesIDW() {
+      return () => {
+        return defaultStyleIDW;
+      };
+    },
+    onEachCensusTractFeature() {
       return (feature, layer) => {
         const popupContent = this.createCensusTractContent(feature.properties);
         this.setDefaultStyles(layer, feature);
@@ -102,9 +143,22 @@ export default {
         });
       };
     },
+    onEachIDWFeature() {
+      return (feature, layer) => {
+        const popupContent = this.createIDWContent(feature.properties);
+        this.setIDWStyles(layer, feature);
+        layer.bindPopup(popupContent, {
+          permanent: false,
+          sticky: true,
+          className: "popup--census",
+        });
+      };
+    },
     ...mapState({
       displayTracts: state => state.tracts.displayStatus,
       displayWells: state => state.wells.displayStatus,
+      displayWellsIDW: state => state.wells.displayStatusIDW,
+      idwWells: state => state.wells.idw,
       tractsData: state => state.tracts.data,
       tractsDataLoading: state => state.tracts.loading,
       wellsData: state => state.wells.data,
@@ -144,6 +198,11 @@ export default {
       let propertyString = `<strong>Cancer Rate:</strong> ${props.canrate}`;
       return propertyString;
     },
+    createIDWContent(props) {
+      // TODO(): Make this a reusable function
+      let propertyString = `<strong>Nitrate Rate:</strong> ${props.nitr_ran}`;
+      return propertyString;
+    },
     createMarkers(geojson) {
       const markersArray = geojson["features"].map(feature => {
         // eslint-disable-next-line
@@ -172,6 +231,15 @@ export default {
       });
       layer.on("mouseout", () => {
         layer.setStyle(defaultStyle);
+      });
+    },
+    setIDWStyles(layer, feature) {
+      layer.setStyle(defaultStyleIDW);
+      layer.on("mouseover", () => {
+        layer.setStyle(highlightStyleIDW);
+      });
+      layer.on("mouseout", () => {
+        layer.setStyle(defaultStyleIDW);
       });
     },
   },
