@@ -52,10 +52,12 @@ export default {
       };
       const hex = interpolate(this.wellsData, 15, options);
       this.setIDW(hex);
+      this.displayWellsIDW(true);
     },
     ...mapMutations({
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
+      displayWellsIDW: "wells/setDisplayStatusIDW",
       setIDW: "wells/setIDW",
     }),
   },
