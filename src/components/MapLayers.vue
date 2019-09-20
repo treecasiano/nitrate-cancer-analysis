@@ -22,15 +22,22 @@
           <v-layout>
             <v-flex>
               <v-checkbox
-                v-model="wellsDisplayStatus"
+                v-model="displayStatusWells"
                 :label="`Well Locations`"
                 data-cy="checkbox--wells"
                 color="primary"
               ></v-checkbox>
               <v-checkbox
-                v-model="tractsDisplayStatus"
+                v-model="displayStatusTracts"
                 :label="`Census Tracts`"
                 data-cy="checkbox--tracts"
+                color="primary"
+              ></v-checkbox>
+              <v-checkbox
+                v-if="wellsIDW.features"
+                v-model="displayStatusIDW"
+                :label="`Interpolated Nitrate Levels`"
+                data-cy="checkbox--idw"
                 color="primary"
               ></v-checkbox>
             </v-flex>
@@ -42,11 +49,11 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 
 export default {
   computed: {
-    tractsDisplayStatus: {
+    displayStatusTracts: {
       get() {
         return this.$store.state.tracts.displayStatus;
       },
@@ -54,7 +61,7 @@ export default {
         this.displayTracts(value);
       },
     },
-    wellsDisplayStatus: {
+    displayStatusWells: {
       get() {
         return this.$store.state.wells.displayStatus;
       },
@@ -62,17 +69,29 @@ export default {
         this.displayWells(value);
       },
     },
+    displayStatusIDW: {
+      get() {
+        return this.$store.state.wells.displayStatusIDW;
+      },
+      set(value) {
+        this.displayWellsIDW(value);
+      },
+    },
+    ...mapState({
+      wellsIDW: state => state.wells.idw,
+    }),
   },
   data() {
     return {
       drawer: true,
-      mini: true,
+      mini: false,
     };
   },
   methods: {
     ...mapMutations({
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
+      displayWellsIDW: "wells/setDisplayStatusIDW",
     }),
   },
 };

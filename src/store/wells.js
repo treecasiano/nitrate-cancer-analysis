@@ -22,11 +22,19 @@ const mutations = {
   setDisplayStatus(state, status) {
     state.displayStatus = status;
   },
+  setDisplayStatusIDW(state, status) {
+    state.displayStatusIDW = status;
+  },
+  setIDW(state, data) {
+    state.idw = data;
+  },
 };
 
 const state = {
   data: {},
-  displayStatus: false,
+  displayStatus: true,
+  displayStatusIDW: true,
+  idw: {},
   loading: false,
 };
 
