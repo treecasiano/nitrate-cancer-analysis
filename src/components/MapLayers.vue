@@ -33,13 +33,27 @@
                 data-cy="checkbox--tracts"
                 color="primary"
               ></v-checkbox>
-              <v-checkbox
-                v-if="wellsIDW.features"
-                v-model="displayStatusIDW"
-                :label="`Interpolated Nitrate Levels`"
-                data-cy="checkbox--idw"
-                color="primary"
-              ></v-checkbox>
+              <div v-if="wellsIDW.features">
+                <v-divider></v-divider>
+                <div>RESULT LAYERS</div>
+                <v-divider class="mb-2"></v-divider>
+                <v-checkbox
+                  v-if="wellsIDW.features"
+                  v-model="displayStatusWellsIDW"
+                  :label="`Interpolated Nitrate Levels`"
+                  data-cy="checkbox--idwNitrate"
+                  color="primary"
+                  @change="showOnlyWellsIDW"
+                ></v-checkbox>
+                <v-checkbox
+                  v-if="tractsIDW.features"
+                  v-model="displayStatusTractsIDW"
+                  :label="`Interpolated Cancer Rates`"
+                  data-cy="checkbox--idwCancer"
+                  color="primary"
+                  @change="showOnlyTractsIDW"
+                ></v-checkbox>
+              </div>
             </v-flex>
           </v-layout>
         </v-container>
@@ -69,7 +83,7 @@ export default {
         this.displayWells(value);
       },
     },
-    displayStatusIDW: {
+    displayStatusWellsIDW: {
       get() {
         return this.$store.state.wells.displayStatusIDW;
       },
@@ -77,7 +91,16 @@ export default {
         this.displayWellsIDW(value);
       },
     },
+    displayStatusTractsIDW: {
+      get() {
+        return this.$store.state.tracts.displayStatusIDW;
+      },
+      set(value) {
+        this.displayTractsIDW(value);
+      },
+    },
     ...mapState({
+      tractsIDW: state => state.tracts.idw,
       wellsIDW: state => state.wells.idw,
     }),
   },
@@ -88,10 +111,21 @@ export default {
     };
   },
   methods: {
+    showOnlyTractsIDW(e) {
+      if (e) {
+        this.displayWellsIDW(false);
+      }
+    },
+    showOnlyWellsIDW(e) {
+      if (e) {
+        this.displayTractsIDW(false);
+      }
+    },
     ...mapMutations({
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
       displayWellsIDW: "wells/setDisplayStatusIDW",
+      displayTractsIDW: "tracts/setDisplayStatusIDW",
     }),
   },
 };

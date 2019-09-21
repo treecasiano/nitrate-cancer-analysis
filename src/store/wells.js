@@ -16,9 +16,6 @@ const mutations = {
   setData(state, data) {
     state.data = data;
   },
-  setLoadingStatus(state, loading) {
-    state.loading = loading;
-  },
   setDisplayStatus(state, status) {
     state.displayStatus = status;
   },
@@ -27,6 +24,9 @@ const mutations = {
   },
   setIDW(state, data) {
     state.idw = data;
+  },
+  setLoadingStatus(state, loading) {
+    state.loading = loading;
   },
 };
 
