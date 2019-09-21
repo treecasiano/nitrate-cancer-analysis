@@ -40,7 +40,7 @@
             <l-popup>
               <div>
                 <strong>Nitrate Rate</strong>
-                : {{item.props.nitr_ran}}
+                : {{item.props.nitr_ran.toFixed(2)}}
               </div>
             </l-popup>
           </l-circle-marker>
@@ -200,7 +200,9 @@ export default {
     },
     createIDWContent(props) {
       // TODO(): Make this a reusable function
-      let propertyString = `<strong>Nitrate Rate:</strong> ${props.nitr_ran}`;
+      let propertyString = `<strong>Interpolated Nitrate Rate:</strong> ${props.nitr_ran.toFixed(
+        2
+      )}`;
       return propertyString;
     },
     createMarkers(geojson) {
