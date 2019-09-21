@@ -14,7 +14,19 @@
           </v-btn>
         </v-list-item>
         <v-container v-if="!mini">
-          <v-layout>
+          <v-layout column>
+            <v-flex>
+              <v-slider
+                v-model="hexSize"
+                :max="maxHex"
+                :min="minHex"
+                thumb-label="always"
+                label="Hexbin size in km"
+              ></v-slider>
+            </v-flex>
+            <v-flex>
+              <v-text-field v-model="idwWeight" label="Power"></v-text-field>
+            </v-flex>
             <v-flex>
               <v-btn @click="interpolate">Submit</v-btn>
             </v-flex>
@@ -40,6 +52,11 @@ export default {
     return {
       drawer: true,
       mini: false,
+      hexSize: 15,
+      idwWeight: 2,
+      maxHex: 50,
+      minHex: 5,
+      minWeight: 1.1,
     };
   },
   methods: {
@@ -48,9 +65,10 @@ export default {
         gridType: "hex",
         property: "nitr_ran",
         units: "kilometers",
-        weight: 6,
+        weight: parseFloat(this.idwWeight),
       };
-      const hex = interpolate(this.wellsData, 15, options);
+
+      const hex = interpolate(this.wellsData, this.hexSize, options);
       this.setIDW(hex);
       this.displayWellsIDW(true);
     },
