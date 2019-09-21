@@ -39,12 +39,13 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-const { featureCollection, point } = require("@turf/helpers");
 const { interpolate } = require("@turf/turf");
 
 export default {
   computed: {
     ...mapState({
+      tractCentroids: state => state.tracts.centroids,
+      tractsData: state => state.tracts.data,
       wellsData: state => state.wells.data,
     }),
   },
@@ -55,28 +56,57 @@ export default {
       hexSize: 15,
       idwWeight: 2,
       maxHex: 50,
-      minHex: 5,
+      minHex: 15,
       minWeight: 1.1,
     };
   },
   methods: {
     interpolate() {
-      const options = {
+      this.displayWellsIDW(false);
+      this.displayTractsIDW(false);
+      const wellOptions = {
         gridType: "hex",
         property: "nitr_ran",
         units: "kilometers",
         weight: parseFloat(this.idwWeight),
       };
+      const tractsOptions = {
+        gridType: "hex",
+        property: "canrate",
+        units: "kilometers",
+        weight: parseFloat(this.idwWeight),
+      };
+      const tractGridOptions = {
+        gridType: "point",
+        property: "canrate",
+        units: "kilometers",
+        weight: parseFloat(this.idwWeight),
+      };
+      const hexWells = interpolate(this.wellsData, this.hexSize, wellOptions);
+      const hexTracts = interpolate(
+        this.tractCentroids,
+        this.hexSize,
+        tractsOptions
+      );
+      const tractGrid = interpolate(
+        this.tractCentroids,
+        this.hexSize,
+        tractGridOptions
+      );
 
-      const hex = interpolate(this.wellsData, this.hexSize, options);
-      this.setIDW(hex);
+      // TODO: Collect the tractGrid points into the nitrate hexbins
+      // TODO: Replace the displayed Cancer IDW layer with a dupe of the nitrate layer that displays only the cancer rates
+      this.setWellsIDW(hexWells);
+      this.setTractsIDW(hexTracts);
       this.displayWellsIDW(true);
     },
     ...mapMutations({
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
       displayWellsIDW: "wells/setDisplayStatusIDW",
-      setIDW: "wells/setIDW",
+      displayTractsIDW: "tracts/setDisplayStatusIDW",
+      setWellsIDW: "wells/setIDW",
+      setTractsIDW: "tracts/setIDW",
     }),
   },
 };

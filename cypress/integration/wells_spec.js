@@ -9,6 +9,6 @@ describe("Well Point Locations", () => {
     cy.get(markersArray)
       .first()
       .click();
-    cy.contains("Nitrate Rates").should("be.visible");
+    cy.contains("Nitrate Levels").should("be.visible");
   });
 });

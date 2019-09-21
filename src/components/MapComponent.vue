@@ -39,7 +39,7 @@
           >
             <l-popup>
               <div>
-                <strong>Nitrate Rate</strong>
+                <strong>Nitrate Level (ppm)</strong>
                 : {{item.props.nitr_ran.toFixed(2)}}
               </div>
             </l-popup>
@@ -54,6 +54,9 @@
         </div>
         <div v-if="displayWellsIDW && idwWells.features">
           <l-geo-json :geojson="idwWells" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
+        </div>
+        <div v-if="displayTractsIDW && idwTracts.features">
+          <l-geo-json :geojson="idwTracts" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
         </div>
         <l-control position="topleft">
           <MapControls />
@@ -156,9 +159,11 @@ export default {
     },
     ...mapState({
       displayTracts: state => state.tracts.displayStatus,
+      displayTractsIDW: state => state.tracts.displayStatusIDW,
       displayWells: state => state.wells.displayStatus,
       displayWellsIDW: state => state.wells.displayStatusIDW,
       idwWells: state => state.wells.idw,
+      idwTracts: state => state.tracts.idw,
       tractsData: state => state.tracts.data,
       tractsDataLoading: state => state.tracts.loading,
       wellsData: state => state.wells.data,
@@ -200,10 +205,18 @@ export default {
     },
     createIDWContent(props) {
       // TODO(): Make this a reusable function
-      let propertyString = `<strong>Interpolated Nitrate Rate:</strong> ${props.nitr_ran.toFixed(
-        2
-      )}`;
-      return propertyString;
+      if (props.nitr_ran) {
+        let propertyString = `<strong>Interpolated Nitrate Levels:</strong> ${props.nitr_ran.toFixed(
+          2
+        )}`;
+        return propertyString;
+      }
+      if (props.canrate) {
+        let propertyString = `<strong>Interpolated Cancer Rate:</strong> ${props.canrate.toFixed(
+          2
+        )}`;
+        return propertyString;
+      }
     },
     createMarkers(geojson) {
       const markersArray = geojson["features"].map(feature => {
