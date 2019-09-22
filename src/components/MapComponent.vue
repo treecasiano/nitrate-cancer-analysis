@@ -204,19 +204,22 @@ export default {
       return propertyString;
     },
     createIDWContent(props) {
-      // TODO(): Make this a reusable function
+      let propertyString = "";
       if (props.nitr_ran) {
-        let propertyString = `<strong>Interpolated Nitrate Levels:</strong> ${props.nitr_ran.toFixed(
-          2
-        )}`;
-        return propertyString;
+        propertyString += `
+        <div> <strong>Interpolated Nitrate Levels:</strong> ${props.nitr_ran.toFixed(
+          4
+        )}</div>
+       `;
       }
-      if (props.canrate) {
-        let propertyString = `<strong>Interpolated Cancer Rate:</strong> ${props.canrate.toFixed(
-          2
-        )}`;
-        return propertyString;
+      if (props.cancerRate) {
+        propertyString += `<div><strong>Interpolated Cancer Rates:</strong> ${props.cancerRate.toFixed(
+          4
+        )}
+        </div>
+       `;
       }
+      return propertyString;
     },
     createMarkers(geojson) {
       const markersArray = geojson["features"].map(feature => {
