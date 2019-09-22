@@ -198,9 +198,6 @@ export default {
     };
   },
   methods: {
-    zoomUpdated(zoom) {
-      this.zoom = zoom;
-    },
     centerUpdated(center) {
       this.center = center;
     },
@@ -278,6 +275,9 @@ export default {
       layer.on("mouseout", () => {
         layer.setStyle(defaultStyleIDW);
       });
+    },
+    zoomUpdated(zoom) {
+      this.zoom = zoom;
     },
   },
   props: {
