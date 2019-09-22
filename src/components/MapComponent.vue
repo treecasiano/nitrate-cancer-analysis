@@ -59,7 +59,11 @@
           <l-geo-json :geojson="idwTracts" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
         </div>
         <div v-if="displayResiduals && idwWells.features">
-          <l-geo-json :geojson="residuals" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
+          <l-geo-json
+            :geojson="residuals"
+            :options="optionsResiduals"
+            :options-style="stylesResiduals"
+          ></l-geo-json>
         </div>
         <l-control position="topleft">
           <MapControls />
@@ -77,8 +81,6 @@ import { mapState } from "vuex";
 
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
-
-// TODO(): Pull the styles into a json object and import
 
 const defaultStyle = {
   weight: 0.75,
@@ -111,6 +113,7 @@ const highlightStyleIDW = {
   fillColor: "#B1B6B6",
   fillOpacity: 0.1,
 };
+
 export default {
   name: "MapComponent",
   components: {
@@ -128,6 +131,11 @@ export default {
         onEachFeature: this.onEachIDWFeature,
       };
     },
+    optionsResiduals() {
+      return {
+        onEachFeature: this.onEachResidualFeature,
+      };
+    },
     stylesCensusTracts() {
       return () => {
         return defaultStyle;
@@ -138,6 +146,11 @@ export default {
         return defaultStyleIDW;
       };
     },
+    stylesResiduals() {
+      return () => {
+        return {};
+      };
+    },
     onEachCensusTractFeature() {
       return (feature, layer) => {
         const popupContent = this.createCensusTractContent(feature.properties);
@@ -145,7 +158,7 @@ export default {
         layer.bindPopup(popupContent, {
           permanent: false,
           sticky: true,
-          className: "popup--census",
+          className: "popup--all",
         });
       };
     },
@@ -156,7 +169,18 @@ export default {
         layer.bindPopup(popupContent, {
           permanent: false,
           sticky: true,
-          className: "popup--census",
+          className: "popup--all",
+        });
+      };
+    },
+    onEachResidualFeature() {
+      return (feature, layer) => {
+        const popupContent = this.createIDWContent(feature.properties);
+        this.setResidualsStyles(layer, feature);
+        layer.bindPopup(popupContent, {
+          permanent: false,
+          sticky: true,
+          className: "popup--all",
         });
       };
     },
@@ -169,6 +193,7 @@ export default {
       idwWells: state => state.wells.idw,
       idwTracts: state => state.tracts.idw,
       residuals: state => state.residuals.hexbins,
+      standardDeviation: state => state.residuals.standardDeviation,
       tractsData: state => state.tracts.data,
       tractsDataLoading: state => state.tracts.loading,
       wellsData: state => state.wells.data,
@@ -198,6 +223,9 @@ export default {
     };
   },
   methods: {
+    boundsUpdated(bounds) {
+      this.bounds = bounds;
+    },
     centerUpdated(center) {
       this.center = center;
     },
@@ -251,8 +279,40 @@ export default {
       });
       this.markersArray = markersArray;
     },
-    boundsUpdated(bounds) {
-      this.bounds = bounds;
+    getResidualsFillColor(feature) {
+      const colorRamp = ["blue", "lightblue", "white", "pink", "red"];
+      const standardDev = this.standardDeviation;
+      const classBreaks = [
+        -2 * standardDev,
+        -1 * standardDev,
+        standardDev,
+        2 * standardDev,
+      ];
+      const {
+        properties: { residual },
+      } = feature;
+
+      // less than -2 standard deviations
+      if (residual < classBreaks[0]) {
+        return colorRamp[0];
+      }
+      // between -2 and -1 standard deviations
+      if (residual < classBreaks[1]) {
+        return colorRamp[1];
+      }
+      // between -1 and 1 standard deviations
+      if (residual < classBreaks[2]) {
+        return colorRamp[2];
+      }
+      // between 1 and 2 standard deviations
+      if (residual < classBreaks[3]) {
+        return colorRamp[3];
+      }
+      // greater than 2 standard deviations
+      if (residual >= classBreaks[3]) {
+        return colorRamp[4];
+      }
+      return "black";
     },
     resetMapView() {
       this.$refs.map.setCenter(defaultCenter);
@@ -274,6 +334,29 @@ export default {
       });
       layer.on("mouseout", () => {
         layer.setStyle(defaultStyleIDW);
+      });
+    },
+    setResidualsStyles(layer, feature) {
+      const defaultStyleResiduals = {
+        weight: 0.75,
+        color: "#A9A9A9",
+        opacity: 1,
+        fillColor: this.getResidualsFillColor(feature),
+        fillOpacity: 0.2,
+      };
+      const highlightStyleResiduals = {
+        weight: 1.5,
+        color: "rgb(124, 179, 66)",
+        opacity: 0.8,
+        fillColor: this.getResidualsFillColor(feature),
+        fillOpacity: 0.1,
+      };
+      layer.setStyle(defaultStyleResiduals);
+      layer.on("mouseover", () => {
+        layer.setStyle(highlightStyleResiduals);
+      });
+      layer.on("mouseout", () => {
+        layer.setStyle(defaultStyleResiduals);
       });
     },
     zoomUpdated(zoom) {
@@ -311,7 +394,7 @@ input {
   color: var(--v-primary-base-darken3);
 }
 
-.popup--census {
+.popup--all {
   border-radius: 10% !important;
   text-align: left;
 }
