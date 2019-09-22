@@ -13,24 +13,27 @@
             <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
         </v-list-item>
-        <v-container v-if="!mini">
-          <v-layout column>
-            <v-flex>
+        <v-container v-if="!mini" class="grey lighten-5 mt-5">
+          <v-row>
+            <v-col cols="12" class="mt-5">
               <v-slider
                 v-model="hexSize"
                 :max="maxHex"
                 :min="minHex"
                 thumb-label="always"
-                label="Hexbin size in km"
+                label="Hexbin size in km: "
               ></v-slider>
-            </v-flex>
-            <v-flex>
-              <v-text-field v-model="idwWeight" label="Power"></v-text-field>
-            </v-flex>
-            <v-flex>
-              <v-btn @click="interpolate">Submit</v-btn>
-            </v-flex>
-          </v-layout>
+            </v-col>
+            <v-col cols="4">
+              <v-text-field v-model="idwWeight" label="Power" width="60"></v-text-field>
+            </v-col>
+            <v-col cols="6">
+              <v-flex>R Squared Value: {{rSquaredResults.toFixed(4)}}</v-flex>
+            </v-col>
+            <v-col cols="12">
+              <v-btn @click="interpolate" color="secondary">Submit</v-btn>
+            </v-col>
+          </v-row>
         </v-container>
       </template>
     </v-navigation-drawer>
@@ -39,7 +42,8 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-const { collect, interpolate } = require("@turf/turf");
+const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
+const { cloneDeep } = require("lodash");
 const {
   linearRegression,
   linearRegressionLine,
@@ -57,11 +61,11 @@ export default {
   data() {
     return {
       drawer: true,
-      mini: false,
       hexSize: 15,
       idwWeight: 2,
       maxHex: 50,
-      minHex: 10,
+      minHex: 5,
+      mini: false,
       minWeight: 1.1,
       rSquaredResults: 0,
     };
@@ -97,23 +101,26 @@ export default {
         "cancerRate"
       );
 
-      /* Note that while the code within map() below does not change 
-      the original features array, it does, however, change the objects 
-      referenced by the features array, 
-      because of this cancerRatesAggregatedToNitrateHexbins will end up
-      with the correct averaged values. */
-
       const { features } = cancerRatesAggregatedToNitrateHexbins;
-      features.forEach(feature => {
-        const {
-          properties: { cancerRate },
-        } = feature;
+      // clone features so as to not change the original array of features
+      const clonedFeatures = cloneDeep(features);
+      clonedFeatures.forEach(feature => {
+        const { properties } = feature;
+        const { cancerRate } = properties;
+        if (cancerRate.length === 0) {
+          // handle cases where small hexbins don't have any cancer rate values/
+          // Find the center of the tract and get the nearest value from tract grid
+          const center = centroid(feature, properties);
+          const nearest = nearestPoint(center, tractGrid);
+          feature.properties.cancerRate = nearest.properties.canrate;
+          return feature;
+        }
         const cancerRateAverage =
           cancerRate.reduce((a, b) => a + b, 0) / cancerRate.length;
         feature.properties.cancerRate = cancerRateAverage;
         return feature;
       });
-
+      Object.assign(features, clonedFeatures);
       const linearRegressionResults = this.calculateLinearRegression(
         cancerRatesAggregatedToNitrateHexbins
       );
@@ -122,7 +129,10 @@ export default {
       // based on the slope and intercept from the linear regression results
       // https://simplestatistics.org/docs/#linear-regression-line
       const line = linearRegressionLine(linearRegressionResults);
-      features.forEach(feature => {
+
+      // reclone features
+      const reclonedFeatures = cloneDeep(clonedFeatures);
+      reclonedFeatures.forEach(feature => {
         const {
           properties: { nitr_ran, cancerRate },
         } = feature;
@@ -131,6 +141,8 @@ export default {
         feature.properties.predictedCancerRate = predictedCancerRate;
         feature.properties.residual = residual;
       });
+      Object.assign(features, reclonedFeatures);
+
       // calculate rSquared and save to component state
       this.rSquaredResults = this.calculateRSquared(
         line,
@@ -160,9 +172,7 @@ export default {
         // nitrate level = x (independent variable), cancer rate = y (dependent variable)
         return [properties.nitr_ran, properties.cancerRate];
       });
-      const results = rSquared(samples, regressionLine);
-      console.log(results);
-      return results;
+      return rSquared(samples, regressionLine);
     },
     ...mapMutations({
       displayTracts: "tracts/setDisplayStatus",
