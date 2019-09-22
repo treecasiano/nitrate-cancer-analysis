@@ -179,7 +179,7 @@ export default {
       // set this same feature collection as the tracts IDW, which will be styled differently in the UI
       this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
       this.setResiduals(cancerRatesAggregatedToNitrateHexbins);
-      this.displayWellsIDW(true);
+      this.displayResiduals(true);
     },
     calculateLinearRegression(featureCollection) {
       const { features } = featureCollection;
