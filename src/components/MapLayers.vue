@@ -21,6 +21,9 @@
         <v-container v-if="!mini">
           <v-layout>
             <v-flex>
+              <v-divider></v-divider>
+              <div>BASE LAYERS</div>
+              <v-divider class="mb-2"></v-divider>
               <v-checkbox
                 v-model="displayStatusWells"
                 :label="`Well Locations`"
@@ -53,6 +56,14 @@
                   color="primary"
                   @change="showOnlyTractsIDW"
                 ></v-checkbox>
+                <v-checkbox
+                  v-if="residuals.features"
+                  v-model="displayResidualsHexbins"
+                  :label="`Residuals`"
+                  data-cy="checkbox--residuals"
+                  color="primary"
+                  @change="showOnlyResidualsIDW"
+                ></v-checkbox>
               </div>
             </v-flex>
           </v-layout>
@@ -67,6 +78,14 @@ import { mapMutations, mapState } from "vuex";
 
 export default {
   computed: {
+    displayResidualsHexbins: {
+      get() {
+        return this.$store.state.residuals.displayStatus;
+      },
+      set(value) {
+        this.displayResiduals(value);
+      },
+    },
     displayStatusTracts: {
       get() {
         return this.$store.state.tracts.displayStatus;
@@ -99,7 +118,9 @@ export default {
         this.displayTractsIDW(value);
       },
     },
+
     ...mapState({
+      residuals: state => state.residuals.hexbins,
       tractsIDW: state => state.tracts.idw,
       wellsIDW: state => state.wells.idw,
     }),
@@ -111,17 +132,27 @@ export default {
     };
   },
   methods: {
+    showOnlyResidualsIDW(e) {
+      // TODO: Refactor this clunky showing and hiding of result layers
+      if (e) {
+        this.displayTractsIDW(false);
+        this.displayWellsIDW(false);
+      }
+    },
     showOnlyTractsIDW(e) {
       if (e) {
+        this.displayResiduals(false);
         this.displayWellsIDW(false);
       }
     },
     showOnlyWellsIDW(e) {
       if (e) {
         this.displayTractsIDW(false);
+        this.displayResiduals(false);
       }
     },
     ...mapMutations({
+      displayResiduals: "residuals/setDisplayStatus",
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
       displayWellsIDW: "wells/setDisplayStatusIDW",
@@ -133,7 +164,6 @@ export default {
 
 <style>
 /* vuetify style overrides */
-
 .v-input--checkbox {
   margin: 0 !important;
   padding: 0 !important;
