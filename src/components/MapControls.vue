@@ -100,6 +100,7 @@ export default {
     interpolate() {
       this.displayWellsIDW(false);
       this.displayTractsIDW(false);
+      this.displayResiduals(false);
       const wellOptions = {
         gridType: "hex",
         property: "nitr_ran",
@@ -177,6 +178,7 @@ export default {
       this.setWellsIDW(cancerRatesAggregatedToNitrateHexbins);
       // set this same feature collection as the tracts IDW, which will be styled differently in the UI
       this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
+      this.setResiduals(cancerRatesAggregatedToNitrateHexbins);
       this.displayWellsIDW(true);
     },
     calculateLinearRegression(featureCollection) {
@@ -201,10 +203,12 @@ export default {
       return rSquared(samples, regressionLine);
     },
     ...mapMutations({
+      displayResiduals: "residuals/setDisplayStatus",
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
       displayWellsIDW: "wells/setDisplayStatusIDW",
       displayTractsIDW: "tracts/setDisplayStatusIDW",
+      setResiduals: "residuals/setHexbins",
       setWellsIDW: "wells/setIDW",
       setTractsIDW: "tracts/setIDW",
     }),

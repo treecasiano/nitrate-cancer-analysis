@@ -58,6 +58,9 @@
         <div v-if="displayTractsIDW && idwTracts.features">
           <l-geo-json :geojson="idwTracts" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
         </div>
+        <div v-if="displayResiduals && idwWells.features">
+          <l-geo-json :geojson="residuals" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
+        </div>
         <l-control position="topleft">
           <MapControls />
         </l-control>
@@ -158,12 +161,14 @@ export default {
       };
     },
     ...mapState({
+      displayResiduals: state => state.residuals.displayStatus,
       displayTracts: state => state.tracts.displayStatus,
       displayTractsIDW: state => state.tracts.displayStatusIDW,
       displayWells: state => state.wells.displayStatus,
       displayWellsIDW: state => state.wells.displayStatusIDW,
       idwWells: state => state.wells.idw,
       idwTracts: state => state.tracts.idw,
+      residuals: state => state.residuals.hexbins,
       tractsData: state => state.tracts.data,
       tractsDataLoading: state => state.tracts.loading,
       wellsData: state => state.wells.data,
