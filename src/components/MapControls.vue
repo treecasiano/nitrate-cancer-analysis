@@ -17,6 +17,7 @@
           <v-row>
             <v-col cols="12" class="mt-5">
               <v-slider
+                color="secondary"
                 v-model="hexSize"
                 :max="maxHex"
                 :min="minHex"
@@ -24,11 +25,25 @@
                 label="Hexbin size in km: "
               ></v-slider>
             </v-col>
-            <v-col cols="4">
-              <v-text-field v-model="idwWeight" label="Power" width="60"></v-text-field>
+            <v-col cols="12">
+              <v-text-field
+                v-model="idwWeightCancer"
+                label="Power (k) for cancer rate interpolation"
+                width="60"
+              ></v-text-field>
             </v-col>
-            <v-col cols="6">
-              <v-flex>R Squared Value: {{rSquaredResults.toFixed(4)}}</v-flex>
+            <v-col cols="12">
+              <v-text-field
+                v-model="idwWeightNitrate"
+                label="Power (k) for nitrate level interpolation"
+                width="60"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-flex>
+                R Squared Value:
+                <span>{{rSquaredResults.toFixed(4)}}</span>
+              </v-flex>
             </v-col>
             <v-col cols="12">
               <v-btn @click="interpolate" color="secondary">Submit</v-btn>
@@ -39,8 +54,18 @@
     </v-navigation-drawer>
   </v-card>
 </template>
-
 <script>
+// TODO: Constrain inputs to positive number greater than or equal to 1
+// TODO: Make note of why aggregating to the census tract layer might be better (build alternative?)
+// TODO: Make help text for each input
+// TODO: Add classifications and color ramps
+// TODO: Create legends
+// TODO: Handle case where inputs result in NaN
+// TODO: Improve styling for power inputs
+// TODO: Why does a power level over 145 for cancer interpolation break the calculations?
+// TODO: Constrain max range on power sliders
+// TODO: Add text to About page
+// TODO: Add map layer to display standard deviation of residuals
 import { mapMutations, mapState } from "vuex";
 const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
 const { cloneDeep } = require("lodash");
@@ -62,7 +87,8 @@ export default {
     return {
       drawer: true,
       hexSize: 15,
-      idwWeight: 2,
+      idwWeightCancer: 2,
+      idwWeightNitrate: 2,
       maxHex: 50,
       minHex: 5,
       mini: false,
@@ -78,13 +104,13 @@ export default {
         gridType: "hex",
         property: "nitr_ran",
         units: "kilometers",
-        weight: parseFloat(this.idwWeight),
+        weight: parseFloat(this.idwWeightNitrate),
       };
       const tractGridOptions = {
         gridType: "point",
         property: "canrate",
         units: "kilometers",
-        weight: parseFloat(this.idwWeight),
+        weight: parseFloat(this.idwWeightCancer),
       };
       const hexWells = interpolate(this.wellsData, this.hexSize, wellOptions);
       const tractGrid = interpolate(
