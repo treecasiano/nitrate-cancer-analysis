@@ -40,7 +40,11 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 const { collect, interpolate } = require("@turf/turf");
-const { linearRegression, linearRegressionLine } = require("simple-statistics");
+const {
+  linearRegression,
+  linearRegressionLine,
+  rSquared,
+} = require("simple-statistics");
 
 export default {
   computed: {
@@ -59,6 +63,7 @@ export default {
       maxHex: 50,
       minHex: 10,
       minWeight: 1.1,
+      rSquaredResults: 0,
     };
   },
   methods: {
@@ -126,6 +131,11 @@ export default {
         feature.properties.predictedCancerRate = predictedCancerRate;
         feature.properties.residual = residual;
       });
+      // calculate rSquared and save to component state
+      this.rSquaredResults = this.calculateRSquared(
+        line,
+        cancerRatesAggregatedToNitrateHexbins
+      );
       this.setWellsIDW(cancerRatesAggregatedToNitrateHexbins);
       // set this same feature collection as the tracts IDW, which will be styled differently in the UI
       this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
@@ -142,6 +152,17 @@ export default {
       // so, for any value of x (nitrate level as slope), we can predict y (cancer rate as intercept)
       const slopeAndIntercept = linearRegression(interpolatedVals);
       return slopeAndIntercept;
+    },
+    calculateRSquared(regressionLine, featureCollection) {
+      const { features } = featureCollection;
+      const samples = features.map(feature => {
+        const { properties } = feature;
+        // nitrate level = x (independent variable), cancer rate = y (dependent variable)
+        return [properties.nitr_ran, properties.cancerRate];
+      });
+      const results = rSquared(samples, regressionLine);
+      console.log(results);
+      return results;
     },
     ...mapMutations({
       displayTracts: "tracts/setDisplayStatus",
