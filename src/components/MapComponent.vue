@@ -219,6 +219,20 @@ export default {
         </div>
        `;
       }
+      if (props.predictedCancerRate) {
+        propertyString += `<div><strong>Predicted Cancer Rates:</strong> ${props.predictedCancerRate.toFixed(
+          4
+        )}
+        </div>
+       `;
+      }
+      if (props.residual) {
+        propertyString += `<div><strong>Residual:</strong> ${props.residual.toFixed(
+          4
+        )}
+        </div>
+       `;
+      }
       return propertyString;
     },
     createMarkers(geojson) {

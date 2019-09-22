@@ -40,6 +40,7 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 const { collect, interpolate } = require("@turf/turf");
+const { linearRegression, linearRegressionLine } = require("simple-statistics");
 
 export default {
   computed: {
@@ -56,7 +57,7 @@ export default {
       hexSize: 15,
       idwWeight: 2,
       maxHex: 50,
-      minHex: 15,
+      minHex: 10,
       minWeight: 1.1,
     };
   },
@@ -98,7 +99,7 @@ export default {
       with the correct averaged values. */
 
       const { features } = cancerRatesAggregatedToNitrateHexbins;
-      features.map(feature => {
+      features.forEach(feature => {
         const {
           properties: { cancerRate },
         } = feature;
@@ -108,10 +109,39 @@ export default {
         return feature;
       });
 
+      const linearRegressionResults = this.calculateLinearRegression(
+        cancerRatesAggregatedToNitrateHexbins
+      );
+      // linearRegressionLine returns a function which can be used to predict values
+      // for the independent variable y (cancer rates)
+      // based on the slope and intercept from the linear regression results
+      // https://simplestatistics.org/docs/#linear-regression-line
+      const line = linearRegressionLine(linearRegressionResults);
+      features.forEach(feature => {
+        const {
+          properties: { nitr_ran, cancerRate },
+        } = feature;
+        const predictedCancerRate = line(nitr_ran);
+        const residual = cancerRate - predictedCancerRate;
+        feature.properties.predictedCancerRate = predictedCancerRate;
+        feature.properties.residual = residual;
+      });
       this.setWellsIDW(cancerRatesAggregatedToNitrateHexbins);
       // set this same feature collection as the tracts IDW, which will be styled differently in the UI
       this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
       this.displayWellsIDW(true);
+    },
+    calculateLinearRegression(featureCollection) {
+      const { features } = featureCollection;
+      const interpolatedVals = features.map(feature => {
+        const { properties } = feature;
+        // nitrate level = x (independent variable), cancer rate = y (dependent variable)
+        return [properties.nitr_ran, properties.cancerRate];
+      });
+      // the regression equation is the slope and y-intercept of a regression line
+      // so, for any value of x (nitrate level as slope), we can predict y (cancer rate as intercept)
+      const slopeAndIntercept = linearRegression(interpolatedVals);
+      return slopeAndIntercept;
     },
     ...mapMutations({
       displayTracts: "tracts/setDisplayStatus",
