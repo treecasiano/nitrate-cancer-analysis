@@ -206,9 +206,17 @@ export default {
     createIDWContent(props) {
       // TODO(): Make this a reusable function
       if (props.nitr_ran) {
-        let propertyString = `<strong>Interpolated Nitrate Levels:</strong> ${props.nitr_ran.toFixed(
-          2
-        )}`;
+        let propertyString = `
+        <div> <strong>Interpolated Nitrate Levels:</strong> ${props.nitr_ran.toFixed(
+          4
+        )}</div>
+        <div>
+        <strong>Interpolated Cancer Rates:</strong> ${props.cancerRate.toFixed(
+          4
+        )}
+        </div>
+       `;
+
         return propertyString;
       }
       if (props.canrate) {

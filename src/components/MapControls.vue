@@ -39,7 +39,7 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-const { interpolate } = require("@turf/turf");
+const { collect, interpolate } = require("@turf/turf");
 
 export default {
   computed: {
@@ -70,12 +70,6 @@ export default {
         units: "kilometers",
         weight: parseFloat(this.idwWeight),
       };
-      const tractsOptions = {
-        gridType: "hex",
-        property: "canrate",
-        units: "kilometers",
-        weight: parseFloat(this.idwWeight),
-      };
       const tractGridOptions = {
         gridType: "point",
         property: "canrate",
@@ -83,21 +77,40 @@ export default {
         weight: parseFloat(this.idwWeight),
       };
       const hexWells = interpolate(this.wellsData, this.hexSize, wellOptions);
-      const hexTracts = interpolate(
-        this.tractCentroids,
-        this.hexSize,
-        tractsOptions
-      );
       const tractGrid = interpolate(
         this.tractCentroids,
         this.hexSize,
         tractGridOptions
       );
 
-      // TODO: Collect the tractGrid points into the nitrate hexbins
-      // TODO: Replace the displayed Cancer IDW layer with a dupe of the nitrate layer that displays only the cancer rates
-      this.setWellsIDW(hexWells);
-      this.setTractsIDW(hexTracts);
+      // collect the interpolated tractGrid points into the nitrate hexbins
+      const cancerRatesAggregatedToNitrateHexbins = collect(
+        hexWells,
+        tractGrid,
+        "canrate",
+        "cancerRate"
+      );
+
+      /* Note that while the code within map() below does not change 
+      the original features array, it does, however, change the objects 
+      referenced by the features array, 
+      because of this cancerRatesAggregatedToNitrateHexbins will end up
+      with the correct averaged values. */
+
+      const { features } = cancerRatesAggregatedToNitrateHexbins;
+      features.map(feature => {
+        const {
+          properties: { cancerRate },
+        } = feature;
+        const cancerRateAverage =
+          cancerRate.reduce((a, b) => a + b, 0) / cancerRate.length;
+        feature.properties.cancerRate = cancerRateAverage;
+        return feature;
+      });
+
+      this.setWellsIDW(cancerRatesAggregatedToNitrateHexbins);
+      // set this same feature collection as the tracts IDW, which will be styled differently in the UI
+      this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
       this.displayWellsIDW(true);
     },
     ...mapMutations({
