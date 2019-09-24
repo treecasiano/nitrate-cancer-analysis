@@ -40,13 +40,14 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12">
-              <v-flex>
-                R Squared Value:
-                <span>{{rSquaredResults.toFixed(4)}}</span>
-              </v-flex>
+              <v-btn @click="interpolate" color="secondary">Submit</v-btn>
             </v-col>
             <v-col cols="12">
-              <v-btn @click="interpolate" color="secondary">Submit</v-btn>
+              <div class="spinnerContainer">
+                R Squared Value:
+                <v-icon v-if="residualsLoading" color="primary">fas fa-spin fa-spinner</v-icon>
+                <span v-else>{{rSquaredResults.toFixed(4)}}</span>
+              </div>
             </v-col>
           </v-row>
         </v-container>
@@ -56,16 +57,14 @@
 </template>
 <script>
 // TODO: Constrain inputs to positive number greater than or equal to 1
-// TODO: Make note of why aggregating to the census tract layer might be better (build alternative?)
 // TODO: Make help text for each input
-// TODO: Add classifications and color ramps
-// TODO: Create legends
-// TODO: Handle case where inputs result in NaN
+// TODO: Add classifications and color ramps to IDW layers
+// TODO: Add legends
 // TODO: Improve styling for power inputs
-// TODO: Why does a power level over 145 for cancer interpolation break the calculations?
-// TODO: Constrain max range on power sliders
+// TODO: Constrain max range on power sliders?
 // TODO: Add text to About page
-// TODO: Add map layer to display standard deviation of residuals
+// TODO: Handle cases where inputs result in NaN; Why does a power level over 145 for cancer interpolation break the calculations?
+
 import { mapMutations, mapState } from "vuex";
 const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
 const { cloneDeep } = require("lodash");
@@ -78,6 +77,7 @@ const {
 export default {
   computed: {
     ...mapState({
+      residualsLoading: state => state.residuals.loading,
       tractCentroids: state => state.tracts.centroids,
       tractsData: state => state.tracts.data,
       wellsData: state => state.wells.data,
@@ -97,89 +97,93 @@ export default {
     };
   },
   methods: {
-    interpolate() {
-      this.displayWellsIDW(false);
-      this.displayTractsIDW(false);
-      this.displayResiduals(false);
-      const wellOptions = {
-        gridType: "hex",
-        property: "nitr_ran",
-        units: "kilometers",
-        weight: parseFloat(this.idwWeightNitrate),
-      };
-      const tractGridOptions = {
-        gridType: "point",
-        property: "canrate",
-        units: "kilometers",
-        weight: parseFloat(this.idwWeightCancer),
-      };
-      const hexWells = interpolate(this.wellsData, this.hexSize, wellOptions);
-      const tractGrid = interpolate(
-        this.tractCentroids,
-        this.hexSize,
-        tractGridOptions
-      );
+    async interpolate() {
+      this.setResidualsLoading(true);
+      this.$forceNextTick(() => {
+        this.displayWellsIDW(false);
+        this.displayTractsIDW(false);
+        this.displayResiduals(false);
+        const wellOptions = {
+          gridType: "hex",
+          property: "nitr_ran",
+          units: "kilometers",
+          weight: parseFloat(this.idwWeightNitrate),
+        };
+        const tractGridOptions = {
+          gridType: "point",
+          property: "canrate",
+          units: "kilometers",
+          weight: parseFloat(this.idwWeightCancer),
+        };
+        const hexWells = interpolate(this.wellsData, this.hexSize, wellOptions);
+        const tractGrid = interpolate(
+          this.tractCentroids,
+          this.hexSize,
+          tractGridOptions
+        );
 
-      // collect the interpolated tractGrid points into the nitrate hexbins
-      const cancerRatesAggregatedToNitrateHexbins = collect(
-        hexWells,
-        tractGrid,
-        "canrate",
-        "cancerRate"
-      );
+        // collect the interpolated tractGrid points into the nitrate hexbins
+        const cancerRatesAggregatedToNitrateHexbins = collect(
+          hexWells,
+          tractGrid,
+          "canrate",
+          "cancerRate"
+        );
 
-      const { features } = cancerRatesAggregatedToNitrateHexbins;
-      // clone features so as to not change the original array of features
-      const clonedFeatures = cloneDeep(features);
-      clonedFeatures.forEach(feature => {
-        const { properties } = feature;
-        const { cancerRate } = properties;
-        if (cancerRate.length === 0) {
-          // handle cases where small hexbins don't have any cancer rate values/
-          // Find the center of the tract and get the nearest value from tract grid
-          const center = centroid(feature, properties);
-          const nearest = nearestPoint(center, tractGrid);
-          feature.properties.cancerRate = nearest.properties.canrate;
+        const { features } = cancerRatesAggregatedToNitrateHexbins;
+        // clone features so as to not change the original array of features
+        const clonedFeatures = cloneDeep(features);
+        clonedFeatures.forEach(feature => {
+          const { properties } = feature;
+          const { cancerRate } = properties;
+          if (cancerRate.length === 0) {
+            // handle cases where small hexbins don't have any cancer rate values/
+            // Find the center of the tract and get the nearest value from tract grid
+            const center = centroid(feature, properties);
+            const nearest = nearestPoint(center, tractGrid);
+            feature.properties.cancerRate = nearest.properties.canrate;
+            return feature;
+          }
+          const cancerRateAverage =
+            cancerRate.reduce((a, b) => a + b, 0) / cancerRate.length;
+          feature.properties.cancerRate = cancerRateAverage;
           return feature;
-        }
-        const cancerRateAverage =
-          cancerRate.reduce((a, b) => a + b, 0) / cancerRate.length;
-        feature.properties.cancerRate = cancerRateAverage;
-        return feature;
-      });
-      Object.assign(features, clonedFeatures);
-      const linearRegressionResults = this.calculateLinearRegression(
-        cancerRatesAggregatedToNitrateHexbins
-      );
-      // linearRegressionLine returns a function which can be used to predict values
-      // for the independent variable y (cancer rates)
-      // based on the slope and intercept from the linear regression results
-      // https://simplestatistics.org/docs/#linear-regression-line
-      const line = linearRegressionLine(linearRegressionResults);
+        });
+        Object.assign(features, clonedFeatures);
+        const linearRegressionResults = this.calculateLinearRegression(
+          cancerRatesAggregatedToNitrateHexbins
+        );
+        // linearRegressionLine returns a function which can be used to predict values
+        // for the independent variable y (cancer rates)
+        // based on the slope and intercept from the linear regression results
+        // https://simplestatistics.org/docs/#linear-regression-line
+        const line = linearRegressionLine(linearRegressionResults);
 
-      // reclone features
-      const reclonedFeatures = cloneDeep(clonedFeatures);
-      reclonedFeatures.forEach(feature => {
-        const {
-          properties: { nitr_ran, cancerRate },
-        } = feature;
-        const predictedCancerRate = line(nitr_ran);
-        const residual = cancerRate - predictedCancerRate;
-        feature.properties.predictedCancerRate = predictedCancerRate;
-        feature.properties.residual = residual;
-      });
-      Object.assign(features, reclonedFeatures);
+        // reclone features
+        const reclonedFeatures = cloneDeep(clonedFeatures);
+        reclonedFeatures.forEach(feature => {
+          const {
+            properties: { nitr_ran, cancerRate },
+          } = feature;
+          const predictedCancerRate = line(nitr_ran);
+          const residual = cancerRate - predictedCancerRate;
+          feature.properties.predictedCancerRate = predictedCancerRate;
+          feature.properties.residual = residual;
+        });
+        Object.assign(features, reclonedFeatures);
 
-      // calculate rSquared and save to component state
-      this.rSquaredResults = this.calculateRSquared(
-        line,
-        cancerRatesAggregatedToNitrateHexbins
-      );
-      this.setWellsIDW(cancerRatesAggregatedToNitrateHexbins);
-      // set this same feature collection as the tracts IDW, which will be styled differently in the UI
-      this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
-      this.setResiduals(cancerRatesAggregatedToNitrateHexbins);
-      this.displayResiduals(true);
+        // calculate rSquared and save to component state
+        this.rSquaredResults = this.calculateRSquared(
+          line,
+          cancerRatesAggregatedToNitrateHexbins
+        );
+        this.setWellsIDW(cancerRatesAggregatedToNitrateHexbins);
+        // set this same feature collection as the tracts IDW, which will be styled differently in the UI
+        this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
+        this.setResiduals(cancerRatesAggregatedToNitrateHexbins);
+        this.displayResiduals(true);
+        this.setResidualsLoading(false);
+      });
     },
     calculateLinearRegression(featureCollection) {
       const { features } = featureCollection;
@@ -208,6 +212,7 @@ export default {
       displayWells: "wells/setDisplayStatus",
       displayWellsIDW: "wells/setDisplayStatusIDW",
       displayTractsIDW: "tracts/setDisplayStatusIDW",
+      setResidualsLoading: "residuals/setLoadingStatus",
       setResiduals: "residuals/setHexbins",
       setWellsIDW: "wells/setIDW",
       setTractsIDW: "tracts/setIDW",
@@ -215,5 +220,8 @@ export default {
   },
 };
 </script>
-
-
+<style>
+.spinnerContainer {
+  height: 50px;
+}
+</style>

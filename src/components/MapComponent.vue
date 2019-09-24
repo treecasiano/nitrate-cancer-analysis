@@ -22,7 +22,6 @@
           </v-btn>
         </l-control>
         <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
-
         <div v-if="displayWells">
           <l-circle-marker
             v-for="(item, index) in markersArray"
