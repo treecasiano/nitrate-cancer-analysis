@@ -166,7 +166,7 @@ export default {
             properties: { nitr_ran, cancerRate },
           } = feature;
           const predictedCancerRate = line(nitr_ran);
-          const residual = cancerRate - predictedCancerRate;
+          const residual = predictedCancerRate - cancerRate;
           feature.properties.predictedCancerRate = predictedCancerRate;
           feature.properties.residual = residual;
         });
