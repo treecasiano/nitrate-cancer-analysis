@@ -1,4 +1,5 @@
 import wellsApi from "../api/wells";
+import { ckmeans } from "simple-statistics";
 
 const actions = {
   async displayData({ commit, status }) {
@@ -38,7 +39,20 @@ const state = {
   loading: false,
 };
 
-const getters = {};
+const getters = {
+  getClusters: state => {
+    const { features } = state.idw;
+    console.log(features);
+    const nitrateRatesArray = features.map(feature => {
+      const {
+        properties: { nitr_ran },
+      } = feature;
+      return nitr_ran;
+    });
+    var clusters = ckmeans(nitrateRatesArray, 5);
+    return clusters;
+  },
+};
 
 export default {
   actions,

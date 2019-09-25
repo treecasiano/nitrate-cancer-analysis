@@ -76,42 +76,10 @@
 <script>
 import MapLayers from "@/components/MapLayers.vue";
 import MapControls from "@/components/MapControls.vue";
-import { mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
-
-const defaultStyle = {
-  weight: 0.75,
-  color: "#A9A9A9",
-  opacity: 1,
-  fillColor: "#B1B6B6",
-  fillOpacity: 0.25,
-};
-
-const defaultStyleIDW = {
-  weight: 0.75,
-  color: "#A9A9A9",
-  opacity: 1,
-  fillColor: "#B1B6B6",
-  fillOpacity: 0.2,
-};
-
-const highlightStyle = {
-  weight: 1.5,
-  color: "rgb(124, 179, 66)",
-  opacity: 0.8,
-  fillColor: "#B1B6B6",
-  fillOpacity: 0.1,
-};
-
-const highlightStyleIDW = {
-  weight: 1.5,
-  color: "rgb(124, 179, 66)",
-  opacity: 0.8,
-  fillColor: "#B1B6B6",
-  fillOpacity: 0.1,
-};
 
 export default {
   name: "MapComponent",
@@ -137,12 +105,12 @@ export default {
     },
     stylesCensusTracts() {
       return () => {
-        return defaultStyle;
+        return {};
       };
     },
     stylesIDW() {
       return () => {
-        return defaultStyleIDW;
+        return {};
       };
     },
     stylesResiduals() {
@@ -183,6 +151,10 @@ export default {
         });
       };
     },
+    ...mapGetters({
+      clustersTracts: "tracts/getClusters",
+      clustersWells: "wells/getClusters",
+    }),
     ...mapState({
       displayResiduals: state => state.residuals.displayStatus,
       displayTracts: state => state.tracts.displayStatus,
@@ -278,6 +250,12 @@ export default {
       });
       this.markersArray = markersArray;
     },
+    getIDWFillColor(feature) {
+      // TODO: add color ramp
+      console.log("this.clustersWells", this.clustersWells);
+      console.log("this.clustersTracts", this.clustersTracts);
+      return "#B1B6B6";
+    },
     getResidualsFillColor(feature) {
       const colorRamp = ["blue", "lightblue", "white", "pink", "red"];
       const standardDev = this.standardDeviation;
@@ -318,6 +296,20 @@ export default {
       this.$refs.map.setZoom(defaultZoom);
     },
     setDefaultStyles(layer, feature) {
+      const defaultStyle = {
+        weight: 0.75,
+        color: "#A9A9A9",
+        opacity: 1,
+        fillColor: "#B1B6B6",
+        fillOpacity: 0.25,
+      };
+      const highlightStyle = {
+        weight: 1.5,
+        color: "rgb(124, 179, 66)",
+        opacity: 0.8,
+        fillColor: "#B1B6B6",
+        fillOpacity: 0.1,
+      };
       layer.setStyle(defaultStyle);
       layer.on("mouseover", () => {
         layer.setStyle(highlightStyle);
@@ -327,6 +319,21 @@ export default {
       });
     },
     setIDWStyles(layer, feature) {
+      const defaultStyleIDW = {
+        weight: 0.75,
+        color: "#A9A9A9",
+        opacity: 1,
+        fillColor: this.getIDWFillColor(feature),
+        fillOpacity: 0.2,
+      };
+      const highlightStyleIDW = {
+        weight: 1.5,
+        color: "rgb(124, 179, 66)",
+        opacity: 0.8,
+        fillColor: "#B1B6B6",
+        fillOpacity: 0.1,
+      };
+
       layer.setStyle(defaultStyleIDW);
       layer.on("mouseover", () => {
         layer.setStyle(highlightStyleIDW);
