@@ -1,6 +1,7 @@
 import tractsApi from "../api/tracts";
 const { centroid } = require("@turf/turf");
 const { featureCollection } = require("@turf/helpers");
+import { ckmeans } from "simple-statistics";
 
 const actions = {
   async displayData({ commit, status }) {
@@ -52,7 +53,20 @@ const state = {
   loading: false,
 };
 
-const getters = {};
+const getters = {
+  getClusters: state => {
+    const { features } = state.idw;
+    console.log(features);
+    const cancerRatesArray = features.map(feature => {
+      const {
+        properties: { cancerRate },
+      } = feature;
+      return cancerRate;
+    });
+    var clusters = ckmeans(cancerRatesArray, 5);
+    return clusters;
+  },
+};
 
 export default {
   actions,
