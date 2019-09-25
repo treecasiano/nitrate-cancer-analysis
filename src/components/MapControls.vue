@@ -58,7 +58,6 @@
 <script>
 // TODO: Constrain inputs to positive number greater than or equal to 1
 // TODO: Make help text for each input
-// TODO: Add classifications and color ramps to IDW layers
 // TODO: Add legends
 // TODO: Improve styling for power inputs
 // TODO: Constrain max range on power sliders?
@@ -166,7 +165,7 @@ export default {
             properties: { nitr_ran, cancerRate },
           } = feature;
           const predictedCancerRate = line(nitr_ran);
-          const residual = cancerRate - predictedCancerRate;
+          const residual = predictedCancerRate - cancerRate;
           feature.properties.predictedCancerRate = predictedCancerRate;
           feature.properties.residual = residual;
         });
