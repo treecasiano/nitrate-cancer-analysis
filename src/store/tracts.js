@@ -54,9 +54,8 @@ const state = {
 };
 
 const getters = {
-  getClusters: state => {
+  getClasses: state => {
     const { features } = state.idw;
-    console.log(features);
     const cancerRatesArray = features.map(feature => {
       const {
         properties: { cancerRate },
@@ -64,7 +63,11 @@ const getters = {
       return cancerRate;
     });
     var clusters = ckmeans(cancerRatesArray, 5);
-    return clusters;
+    var classBreakPoints = clusters.map(cluster => {
+      return Math.min(...cluster);
+    });
+    classBreakPoints.shift();
+    return { classBreakPoints, clusters };
   },
 };
 
