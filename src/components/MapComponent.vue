@@ -7,6 +7,7 @@
         :center="center"
         :maxBounds="maxBounds"
         :maxZoom="maxZoom"
+        :minZoom="minZoom"
         @update:zoom="zoomUpdated"
         @update:center="centerUpdated"
         @update:bounds="boundsUpdated"
@@ -209,6 +210,7 @@ export default {
       ]),
       maxZoom: 18,
       markersArray: [],
+      minZoom: 6,
       colorRamp: ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"],
       wellDataColor: "#ffffff",
       wellDataFillColor: "rgb(0, 131, 143)",
