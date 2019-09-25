@@ -5,6 +5,7 @@
         ref="map"
         :zoom="zoom"
         :center="center"
+        :maxBounds="maxBounds"
         :maxZoom="maxZoom"
         @update:zoom="zoomUpdated"
         @update:center="centerUpdated"
@@ -78,6 +79,7 @@
 </template>
 
 <script>
+import { latLngBounds } from "leaflet";
 import MapLayers from "@/components/MapLayers.vue";
 import MapControls from "@/components/MapControls.vue";
 import { mapGetters, mapState } from "vuex";
@@ -201,6 +203,10 @@ export default {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: "abcd",
       loading: false,
+      maxBounds: latLngBounds([
+        [48.95136647094772, -80.20019531250001],
+        [40.027614437486655, -100.30517578125001],
+      ]),
       maxZoom: 18,
       markersArray: [],
       colorRamp: ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"],

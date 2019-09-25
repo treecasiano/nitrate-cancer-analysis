@@ -58,7 +58,6 @@
 <script>
 // TODO: Constrain inputs to positive number greater than or equal to 1
 // TODO: Make help text for each input
-// TODO: Add classifications and color ramps to IDW layers
 // TODO: Add legends
 // TODO: Improve styling for power inputs
 // TODO: Constrain max range on power sliders?
