@@ -84,6 +84,11 @@ import { mapGetters, mapState } from "vuex";
 
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
+const popupOptions = {
+  permanent: false,
+  sticky: true,
+  className: "popup--all",
+};
 
 export default {
   name: "MapComponent",
@@ -136,44 +141,28 @@ export default {
       return (feature, layer) => {
         const popupContent = this.createCensusTractContent(feature.properties);
         this.setCensusTractStyles(layer, feature);
-        layer.bindPopup(popupContent, {
-          permanent: false,
-          sticky: true,
-          className: "popup--all",
-        });
+        layer.bindPopup(popupContent, popupOptions);
       };
     },
     onEachNitrateLevelIDWFeature() {
       return (feature, layer) => {
         const popupContent = this.createIDWContent(feature.properties);
         this.setNitrateLevelsIDWStyles(layer, feature);
-        layer.bindPopup(popupContent, {
-          permanent: false,
-          sticky: true,
-          className: "popup--all",
-        });
+        layer.bindPopup(popupContent, popupOptions);
       };
     },
     onEachCancerRatesIDWFeature() {
       return (feature, layer) => {
         const popupContent = this.createIDWContent(feature.properties);
         this.setCancerRatesIDWStyles(layer, feature);
-        layer.bindPopup(popupContent, {
-          permanent: false,
-          sticky: true,
-          className: "popup--all",
-        });
+        layer.bindPopup(popupContent, popupOptions);
       };
     },
     onEachResidualFeature() {
       return (feature, layer) => {
         const popupContent = this.createIDWContent(feature.properties);
         this.setResidualsStyles(layer, feature);
-        layer.bindPopup(popupContent, {
-          permanent: false,
-          sticky: true,
-          className: "popup--all",
-        });
+        layer.bindPopup(popupContent, popupOptions);
       };
     },
     ...mapGetters({
