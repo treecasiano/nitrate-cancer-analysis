@@ -54,8 +54,12 @@
         <div v-if="displayWellsIDW && idwWells.features">
           <l-geo-json :geojson="idwWells" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
         </div>
-        <div v-if="displayTractsIDW && idwTracts.features">
-          <l-geo-json :geojson="idwTracts" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
+        <div v-if="displayCancerRatesIDW && idwTracts.features">
+          <l-geo-json
+            :geojson="idwTracts"
+            :options="optionsCancerRatesIDW"
+            :options-style="stylesCancerRatesIDW"
+          ></l-geo-json>
         </div>
         <div v-if="displayResiduals && idwWells.features">
           <l-geo-json
@@ -95,7 +99,12 @@ export default {
     },
     optionsIDW() {
       return {
-        onEachFeature: this.onEachIDWFeature,
+        onEachFeature: this.onEachNitrateLevelIDWFeature,
+      };
+    },
+    optionsCancerRatesIDW() {
+      return {
+        onEachFeature: this.onEachCancerRatesIDWFeature,
       };
     },
     optionsResiduals() {
@@ -113,6 +122,11 @@ export default {
         return {};
       };
     },
+    stylesCancerRatesIDW() {
+      return () => {
+        return {};
+      };
+    },
     stylesResiduals() {
       return () => {
         return {};
@@ -121,7 +135,7 @@ export default {
     onEachCensusTractFeature() {
       return (feature, layer) => {
         const popupContent = this.createCensusTractContent(feature.properties);
-        this.setDefaultStyles(layer, feature);
+        this.setCensusTractStyles(layer, feature);
         layer.bindPopup(popupContent, {
           permanent: false,
           sticky: true,
@@ -129,10 +143,21 @@ export default {
         });
       };
     },
-    onEachIDWFeature() {
+    onEachNitrateLevelIDWFeature() {
       return (feature, layer) => {
         const popupContent = this.createIDWContent(feature.properties);
-        this.setIDWStyles(layer, feature);
+        this.setNitrateLevelsIDWStyles(layer, feature);
+        layer.bindPopup(popupContent, {
+          permanent: false,
+          sticky: true,
+          className: "popup--all",
+        });
+      };
+    },
+    onEachCancerRatesIDWFeature() {
+      return (feature, layer) => {
+        const popupContent = this.createIDWContent(feature.properties);
+        this.setCancerRatesIDWStyles(layer, feature);
         layer.bindPopup(popupContent, {
           permanent: false,
           sticky: true,
@@ -152,13 +177,13 @@ export default {
       };
     },
     ...mapGetters({
-      clustersTracts: "tracts/getClusters",
-      clustersWells: "wells/getClusters",
+      classesCancerRates: "tracts/getClasses",
+      classesNitrates: "wells/getClasses",
     }),
     ...mapState({
       displayResiduals: state => state.residuals.displayStatus,
       displayTracts: state => state.tracts.displayStatus,
-      displayTractsIDW: state => state.tracts.displayStatusIDW,
+      displayCancerRatesIDW: state => state.tracts.displayStatusIDW,
       displayWells: state => state.wells.displayStatus,
       displayWellsIDW: state => state.wells.displayStatusIDW,
       idwWells: state => state.wells.idw,
@@ -189,7 +214,8 @@ export default {
       loading: false,
       maxZoom: 18,
       markersArray: [],
-      wellDataColor: "#C0C0C0",
+      colorRamp: ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"],
+      wellDataColor: "#ffffff",
       wellDataFillColor: "rgb(0, 131, 143)",
     };
   },
@@ -250,14 +276,52 @@ export default {
       });
       this.markersArray = markersArray;
     },
-    getIDWFillColor(feature) {
-      // TODO: add color ramp
-      console.log("this.clustersWells", this.clustersWells);
-      console.log("this.clustersTracts", this.clustersTracts);
+    getNitrateLevelsIDWFillColor(feature) {
+      const {
+        properties: { nitr_ran },
+      } = feature;
+      const { classBreakPoints } = this.classesNitrates;
+      if (nitr_ran < classBreakPoints[0]) {
+        return this.colorRamp[0];
+      }
+      if (nitr_ran < classBreakPoints[1]) {
+        return this.colorRamp[1];
+      }
+      if (nitr_ran < classBreakPoints[2]) {
+        return this.colorRamp[2];
+      }
+      if (nitr_ran < classBreakPoints[3]) {
+        return this.colorRamp[3];
+      }
+      if (nitr_ran >= classBreakPoints[3]) {
+        return this.colorRamp[4];
+      }
+      return "#B1B6B6";
+    },
+    getCancerRatesIDWFillColor(feature) {
+      const {
+        properties: { cancerRate },
+      } = feature;
+      const { classBreakPoints } = this.classesCancerRates;
+      if (cancerRate < classBreakPoints[0]) {
+        return this.colorRamp[0];
+      }
+      if (cancerRate < classBreakPoints[1]) {
+        return this.colorRamp[1];
+      }
+      if (cancerRate < classBreakPoints[2]) {
+        return this.colorRamp[2];
+      }
+      if (cancerRate < classBreakPoints[3]) {
+        return this.colorRamp[3];
+      }
+      if (cancerRate >= classBreakPoints[3]) {
+        return this.colorRamp[4];
+      }
       return "#B1B6B6";
     },
     getResidualsFillColor(feature) {
-      const colorRamp = ["blue", "lightblue", "white", "pink", "red"];
+      const colorRamp = ["#a6611a", "#dfc27d", "#f5f5f5", "#80cdc1", "#018571"];
       const standardDev = this.standardDeviation;
       const classBreaks = [
         -2 * standardDev,
@@ -289,13 +353,22 @@ export default {
       if (residual >= classBreaks[3]) {
         return colorRamp[4];
       }
-      return "black";
+      return "#B1B6B6";
     },
     resetMapView() {
       this.$refs.map.setCenter(defaultCenter);
       this.$refs.map.setZoom(defaultZoom);
     },
-    setDefaultStyles(layer, feature) {
+    setStyles(layer, defaultStyles, hightlightStyles) {
+      layer.setStyle(defaultStyles);
+      layer.on("mouseover", () => {
+        layer.setStyle(hightlightStyles);
+      });
+      layer.on("mouseout", () => {
+        layer.setStyle(defaultStyles);
+      });
+    },
+    setCensusTractStyles(layer) {
       const defaultStyle = {
         weight: 0.75,
         color: "#A9A9A9",
@@ -318,52 +391,53 @@ export default {
         layer.setStyle(defaultStyle);
       });
     },
-    setIDWStyles(layer, feature) {
-      const defaultStyleIDW = {
+    setNitrateLevelsIDWStyles(layer, feature) {
+      const defaultStyle = {
         weight: 0.75,
         color: "#A9A9A9",
         opacity: 1,
-        fillColor: this.getIDWFillColor(feature),
-        fillOpacity: 0.2,
+        fillColor: this.getNitrateLevelsIDWFillColor(feature),
+        fillOpacity: 0.5,
       };
-      const highlightStyleIDW = {
+      const highlightStyle = {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillColor: "#B1B6B6",
-        fillOpacity: 0.1,
+        fillOpacity: 0.5,
       };
-
-      layer.setStyle(defaultStyleIDW);
-      layer.on("mouseover", () => {
-        layer.setStyle(highlightStyleIDW);
-      });
-      layer.on("mouseout", () => {
-        layer.setStyle(defaultStyleIDW);
-      });
+      this.setStyles(layer, defaultStyle, highlightStyle);
+    },
+    setCancerRatesIDWStyles(layer, feature) {
+      const defaultStyle = {
+        weight: 0.75,
+        color: "#A9A9A9",
+        opacity: 1,
+        fillColor: this.getCancerRatesIDWFillColor(feature),
+        fillOpacity: 0.5,
+      };
+      const highlightStyle = {
+        weight: 1.5,
+        color: "rgb(124, 179, 66)",
+        opacity: 0.8,
+        fillOpacity: 0.5,
+      };
+      this.setStyles(layer, defaultStyle, highlightStyle);
     },
     setResidualsStyles(layer, feature) {
-      const defaultStyleResiduals = {
+      const defaultStyle = {
         weight: 0.75,
         color: "#A9A9A9",
         opacity: 1,
         fillColor: this.getResidualsFillColor(feature),
-        fillOpacity: 0.2,
+        fillOpacity: 0.5,
       };
-      const highlightStyleResiduals = {
+      const highlightStyle = {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillColor: this.getResidualsFillColor(feature),
-        fillOpacity: 0.1,
+        fillOpacity: 0.5,
       };
-      layer.setStyle(defaultStyleResiduals);
-      layer.on("mouseover", () => {
-        layer.setStyle(highlightStyleResiduals);
-      });
-      layer.on("mouseout", () => {
-        layer.setStyle(defaultStyleResiduals);
-      });
+      this.setStyles(layer, defaultStyle, highlightStyle);
     },
     zoomUpdated(zoom) {
       this.zoom = zoom;

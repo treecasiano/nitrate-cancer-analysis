@@ -40,17 +40,20 @@ const state = {
 };
 
 const getters = {
-  getClusters: state => {
+  getClasses: state => {
     const { features } = state.idw;
-    console.log(features);
-    const nitrateRatesArray = features.map(feature => {
+    const nitratesArray = features.map(feature => {
       const {
         properties: { nitr_ran },
       } = feature;
       return nitr_ran;
     });
-    var clusters = ckmeans(nitrateRatesArray, 5);
-    return clusters;
+    var clusters = ckmeans(nitratesArray, 5);
+    var classBreakPoints = clusters.map(cluster => {
+      return Math.min(...cluster);
+    });
+    classBreakPoints.shift();
+    return { classBreakPoints, clusters };
   },
 };
 
