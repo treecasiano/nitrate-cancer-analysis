@@ -2,51 +2,56 @@
   <v-card>
     <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent>
       <template v-slot:prepend>
-        <v-list-item v-if="mini">
+        <v-list-item v-if="mini" dense>
           <v-btn icon @click.stop="mini = !mini">
             <v-icon>mdi-chevron-right</v-icon>
           </v-btn>
         </v-list-item>
-        <v-list-item v-if="!mini">
+        <v-list-item v-if="!mini" dense>
           <v-spacer></v-spacer>
           <v-btn small icon @click.stop="mini = !mini">
             <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
         </v-list-item>
-        <v-container v-if="!mini" class="grey lighten-5 mt-5">
+        <v-container v-if="!mini" class="grey lighten-5">
           <v-row>
-            <v-col cols="12" class="mt-5">
+            <v-col cols="12">
+              <v-divider></v-divider>
+              <div>LINEAR REGRESSION PARAMETERS</div>
+              <v-divider></v-divider>
+            </v-col>
+            <v-col cols="6">
+              <v-text-field v-model="idwWeightCancer" label="k: cancer rate"></v-text-field>
+            </v-col>
+            <v-col cols="6">
+              <v-text-field v-model="idwWeightNitrate" label="k: nitrate level"></v-text-field>
+            </v-col>
+            <v-col cols="12" class="mt-4">
               <v-slider
                 color="secondary"
                 v-model="hexSize"
                 :max="maxHex"
                 :min="minHex"
                 thumb-label="always"
-                label="Hexbin size in km: "
+                label="Hexbin size (km): "
               ></v-slider>
+              <div>If hexbin size is less than 5km, the calculation can take several minutes.</div>
             </v-col>
             <v-col cols="12">
-              <v-text-field
-                v-model="idwWeightCancer"
-                label="Power (k) for cancer rate interpolation"
-                width="60"
-              ></v-text-field>
+              <v-btn @click="interpolate" color="secondary" small>Submit</v-btn>
+            </v-col>
+            <v-col>
+              <v-divider></v-divider>
+              <div>RESULTS</div>
+              <v-divider></v-divider>
             </v-col>
             <v-col cols="12">
-              <v-text-field
-                v-model="idwWeightNitrate"
-                label="Power (k) for nitrate level interpolation"
-                width="60"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <v-btn @click="interpolate" color="secondary">Submit</v-btn>
-            </v-col>
-            <v-col cols="12">
-              <div class="spinnerContainer">
+              <v-flex class="spinnerContainer my-2" v-if="residualsLoading">
+                <v-icon color="primary">fas fa-spin fa-spinner</v-icon>
+              </v-flex>
+              <div v-else>
                 R Squared Value:
-                <v-icon v-if="residualsLoading" color="primary">fas fa-spin fa-spinner</v-icon>
-                <span v-else>{{rSquaredResults.toFixed(4)}}</span>
+                <span>{{rSquaredResults.toFixed(4)}}</span>
               </div>
             </v-col>
           </v-row>
@@ -56,13 +61,10 @@
   </v-card>
 </template>
 <script>
-// TODO: Constrain inputs to positive number greater than or equal to 1
+// TODO: Constrain power inputs
 // TODO: Make help text for each input
 // TODO: Add legends
-// TODO: Improve styling for power inputs
-// TODO: Constrain max range on power sliders?
 // TODO: Add text to About page
-// TODO: Handle cases where inputs result in NaN; Why does a power level over 145 for cancer interpolation break the calculations?
 
 import { mapMutations, mapState } from "vuex";
 const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
@@ -80,16 +82,17 @@ export default {
       tractCentroids: state => state.tracts.centroids,
       tractsData: state => state.tracts.data,
       wellsData: state => state.wells.data,
+      wellsIDW: state => state.wells.idw,
     }),
   },
   data() {
     return {
       drawer: true,
-      hexSize: 15,
+      hexSize: 6,
       idwWeightCancer: 2,
       idwWeightNitrate: 2,
-      maxHex: 50,
-      minHex: 5,
+      maxHex: 10,
+      minHex: 3,
       mini: false,
       minWeight: 1.1,
       rSquaredResults: 0,
