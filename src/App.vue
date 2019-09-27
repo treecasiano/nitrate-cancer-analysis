@@ -14,12 +14,6 @@
             <router-link to="/about">About</router-link>
           </v-btn>
         </v-toolbar-items>
-
-        <template v-if="$vuetify.breakpoint.smAndUp">
-          <v-btn icon color="primary">
-            <v-icon>mdi-printer</v-icon>
-          </v-btn>
-        </template>
       </v-toolbar>
     </div>
     <router-view />
