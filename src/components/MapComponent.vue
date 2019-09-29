@@ -404,13 +404,7 @@ export default {
         fillColor: this.getCensusTractsFillColor(feature),
         fillOpacity: 0.25,
       };
-      layer.setStyle(defaultStyle);
-      layer.on("mouseover", () => {
-        layer.setStyle(highlightStyle);
-      });
-      layer.on("mouseout", () => {
-        layer.setStyle(defaultStyle);
-      });
+      this.setStyles(layer, defaultStyle, highlightStyle);
     },
     setNitrateLevelsIDWStyles(layer, feature) {
       const defaultStyle = {
@@ -424,7 +418,7 @@ export default {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillOpacity: 0.5,
+        fillOpacity: 0.25,
       };
       this.setStyles(layer, defaultStyle, highlightStyle);
     },
@@ -440,7 +434,7 @@ export default {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillOpacity: 0.5,
+        fillOpacity: 0.25,
       };
       this.setStyles(layer, defaultStyle, highlightStyle);
     },
@@ -456,7 +450,7 @@ export default {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillOpacity: 0.5,
+        fillOpacity: 0.25,
       };
       this.setStyles(layer, defaultStyle, highlightStyle);
     },
