@@ -35,6 +35,7 @@
                 :label="`Census Tracts`"
                 data-cy="checkbox--tracts"
                 color="primary"
+                @change="hideAllResultsLayers"
               ></v-checkbox>
               <div v-if="wellsIDW.features">
                 <v-divider></v-divider>
@@ -132,21 +133,30 @@ export default {
     };
   },
   methods: {
-    showOnlyResidualsIDW(e) {
-      // TODO: Refactor this clunky showing and hiding of result layers
+    hideAllResultsLayers(e) {
       if (e) {
+        this.displayTractsIDW(false);
+        this.displayResiduals(false);
+        this.displayWellsIDW(false);
+      }
+    },
+    showOnlyResidualsIDW(e) {
+      if (e) {
+        this.displayTracts(false);
         this.displayTractsIDW(false);
         this.displayWellsIDW(false);
       }
     },
     showOnlyTractsIDW(e) {
       if (e) {
+        this.displayTracts(false);
         this.displayResiduals(false);
         this.displayWellsIDW(false);
       }
     },
     showOnlyWellsIDW(e) {
       if (e) {
+        this.displayTracts(false);
         this.displayTractsIDW(false);
         this.displayResiduals(false);
       }
