@@ -1,18 +1,13 @@
 <template>
   <v-card>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant.sync="mini"
-      permanent
-      style="max-width: 200px;"
-    >
+    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent>
       <template v-slot:prepend>
         <div v-if="mini">
           <v-btn icon @click.stop="mini = !mini">
             <v-icon>mdi-layers</v-icon>
           </v-btn>
         </div>
-        <v-list-item v-if="!mini">
+        <v-list-item v-if="!mini" dense>
           <v-spacer></v-spacer>
           <v-btn small icon @click.stop="mini = !mini">
             <v-icon>mdi-close</v-icon>
@@ -35,6 +30,7 @@
                 :label="`Census Tracts`"
                 data-cy="checkbox--tracts"
                 color="primary"
+                @change="hideAllResultsLayers"
               ></v-checkbox>
               <div v-if="wellsIDW.features">
                 <v-divider></v-divider>
@@ -132,21 +128,30 @@ export default {
     };
   },
   methods: {
-    showOnlyResidualsIDW(e) {
-      // TODO: Refactor this clunky showing and hiding of result layers
+    hideAllResultsLayers(e) {
       if (e) {
+        this.displayTractsIDW(false);
+        this.displayResiduals(false);
+        this.displayWellsIDW(false);
+      }
+    },
+    showOnlyResidualsIDW(e) {
+      if (e) {
+        this.displayTracts(false);
         this.displayTractsIDW(false);
         this.displayWellsIDW(false);
       }
     },
     showOnlyTractsIDW(e) {
       if (e) {
+        this.displayTracts(false);
         this.displayResiduals(false);
         this.displayWellsIDW(false);
       }
     },
     showOnlyWellsIDW(e) {
       if (e) {
+        this.displayTracts(false);
         this.displayTractsIDW(false);
         this.displayResiduals(false);
       }

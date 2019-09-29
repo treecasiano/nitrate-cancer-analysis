@@ -14,12 +14,6 @@
             <router-link to="/about">About</router-link>
           </v-btn>
         </v-toolbar-items>
-
-        <template v-if="$vuetify.breakpoint.smAndUp">
-          <v-btn icon color="primary">
-            <v-icon>mdi-printer</v-icon>
-          </v-btn>
-        </template>
       </v-toolbar>
     </div>
     <router-view />
@@ -29,9 +23,9 @@
 <script>
 export default {
   async created() {
-    // TODO: Implement promise.all
-    await this.$store.dispatch("wells/getData");
-    await this.$store.dispatch("tracts/getData");
+    const getWellsPromise = await this.$store.dispatch("wells/getData");
+    const getCensusTractsPromise = await this.$store.dispatch("tracts/getData");
+    Promise.all([getWellsPromise, getCensusTractsPromise]);
   },
   data: () => ({}),
 };

@@ -17,7 +17,6 @@
         <l-control position="topright">
           <MapLayers />
         </l-control>
-        <l-control-scale position="bottomleft"></l-control-scale>
         <l-control position="topleft">
           <v-btn dark color="primary" @click="resetMapView">
             <v-icon>home</v-icon>
@@ -85,6 +84,10 @@ import MapLayers from "@/components/MapLayers.vue";
 import MapControls from "@/components/MapControls.vue";
 import { mapGetters, mapState } from "vuex";
 
+const attribution =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const url =
+  "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
 const popupOptions = {
@@ -169,8 +172,9 @@ export default {
       };
     },
     ...mapGetters({
-      classesCancerRates: "tracts/getClasses",
-      classesNitrates: "wells/getClasses",
+      classesCancerRatesIDW: "tracts/getClassesIDW",
+      classesCancerRatesTracts: "tracts/getClassesTracts",
+      classesNitrates: "wells/getClassesIDW",
     }),
     ...mapState({
       displayResiduals: state => state.residuals.displayStatus,
@@ -195,13 +199,11 @@ export default {
   },
   data() {
     return {
-      url:
-        "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
+      url,
       zoom: defaultZoom,
       center: defaultCenter,
       bounds: null,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      attribution,
       subdomains: "abcd",
       loading: false,
       maxBounds: latLngBounds([
@@ -299,7 +301,7 @@ export default {
       const {
         properties: { cancerRate },
       } = feature;
-      const { classBreakPoints } = this.classesCancerRates;
+      const { classBreakPoints } = this.classesCancerRatesIDW;
       if (cancerRate < classBreakPoints[0]) {
         return this.colorRamp[0];
       }
@@ -313,6 +315,28 @@ export default {
         return this.colorRamp[3];
       }
       if (cancerRate >= classBreakPoints[3]) {
+        return this.colorRamp[4];
+      }
+      return "#B1B6B6";
+    },
+    getCensusTractsFillColor(feature) {
+      const {
+        properties: { canrate },
+      } = feature;
+      const { classBreakPoints } = this.classesCancerRatesTracts;
+      if (canrate < classBreakPoints[0]) {
+        return this.colorRamp[0];
+      }
+      if (canrate < classBreakPoints[1]) {
+        return this.colorRamp[1];
+      }
+      if (canrate < classBreakPoints[2]) {
+        return this.colorRamp[2];
+      }
+      if (canrate < classBreakPoints[3]) {
+        return this.colorRamp[3];
+      }
+      if (canrate >= classBreakPoints[3]) {
         return this.colorRamp[4];
       }
       return "#B1B6B6";
@@ -365,28 +389,22 @@ export default {
         layer.setStyle(defaultStyles);
       });
     },
-    setCensusTractStyles(layer) {
+    setCensusTractStyles(layer, feature) {
       const defaultStyle = {
         weight: 0.75,
         color: "#A9A9A9",
         opacity: 1,
-        fillColor: "#B1B6B6",
-        fillOpacity: 0.25,
+        fillColor: this.getCensusTractsFillColor(feature),
+        fillOpacity: 0.5,
       };
       const highlightStyle = {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillColor: "#B1B6B6",
-        fillOpacity: 0.1,
+        fillColor: this.getCensusTractsFillColor(feature),
+        fillOpacity: 0.25,
       };
-      layer.setStyle(defaultStyle);
-      layer.on("mouseover", () => {
-        layer.setStyle(highlightStyle);
-      });
-      layer.on("mouseout", () => {
-        layer.setStyle(defaultStyle);
-      });
+      this.setStyles(layer, defaultStyle, highlightStyle);
     },
     setNitrateLevelsIDWStyles(layer, feature) {
       const defaultStyle = {
@@ -400,7 +418,7 @@ export default {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillOpacity: 0.5,
+        fillOpacity: 0.25,
       };
       this.setStyles(layer, defaultStyle, highlightStyle);
     },
@@ -416,7 +434,7 @@ export default {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillOpacity: 0.5,
+        fillOpacity: 0.25,
       };
       this.setStyles(layer, defaultStyle, highlightStyle);
     },
@@ -432,7 +450,7 @@ export default {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillOpacity: 0.5,
+        fillOpacity: 0.25,
       };
       this.setStyles(layer, defaultStyle, highlightStyle);
     },

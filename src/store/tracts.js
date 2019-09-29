@@ -54,13 +54,28 @@ const state = {
 };
 
 const getters = {
-  getClasses: state => {
+  getClassesIDW: state => {
     const { features } = state.idw;
     const cancerRatesArray = features.map(feature => {
       const {
         properties: { cancerRate },
       } = feature;
       return cancerRate;
+    });
+    var clusters = ckmeans(cancerRatesArray, 5);
+    var classBreakPoints = clusters.map(cluster => {
+      return Math.min(...cluster);
+    });
+    classBreakPoints.shift();
+    return { classBreakPoints, clusters };
+  },
+  getClassesTracts: state => {
+    const { features } = state.data;
+    const cancerRatesArray = features.map(feature => {
+      const {
+        properties: { canrate },
+      } = feature;
+      return canrate;
     });
     var clusters = ckmeans(cancerRatesArray, 5);
     var classBreakPoints = clusters.map(cluster => {
