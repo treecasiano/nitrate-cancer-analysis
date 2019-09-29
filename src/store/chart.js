@@ -5,11 +5,15 @@ const mutations = {
   setDisplayStatus(state, status) {
     state.displayStatus = status;
   },
+  setPredictedValues(state, status) {
+    state.predictedValues = status;
+  },
 };
 
 const state = {
   displayStatus: false,
   interpolatedValues: [],
+  predictedValues: [],
 };
 
 const getters = {};
