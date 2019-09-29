@@ -169,8 +169,9 @@ export default {
       };
     },
     ...mapGetters({
-      classesCancerRates: "tracts/getClasses",
-      classesNitrates: "wells/getClasses",
+      classesCancerRatesIDW: "tracts/getClassesIDW",
+      classesCancerRatesTracts: "tracts/getClassesTracts",
+      classesNitrates: "wells/getClassesIDW",
     }),
     ...mapState({
       displayResiduals: state => state.residuals.displayStatus,
@@ -299,7 +300,7 @@ export default {
       const {
         properties: { cancerRate },
       } = feature;
-      const { classBreakPoints } = this.classesCancerRates;
+      const { classBreakPoints } = this.classesCancerRatesIDW;
       if (cancerRate < classBreakPoints[0]) {
         return this.colorRamp[0];
       }
@@ -313,6 +314,29 @@ export default {
         return this.colorRamp[3];
       }
       if (cancerRate >= classBreakPoints[3]) {
+        return this.colorRamp[4];
+      }
+      return "#B1B6B6";
+    },
+    getCensusTractsFillColor(feature) {
+      const {
+        properties: { canrate },
+      } = feature;
+      console.log("feature", feature);
+      const { classBreakPoints } = this.classesCancerRatesTracts;
+      if (canrate < classBreakPoints[0]) {
+        return this.colorRamp[0];
+      }
+      if (canrate < classBreakPoints[1]) {
+        return this.colorRamp[1];
+      }
+      if (canrate < classBreakPoints[2]) {
+        return this.colorRamp[2];
+      }
+      if (canrate < classBreakPoints[3]) {
+        return this.colorRamp[3];
+      }
+      if (canrate >= classBreakPoints[3]) {
         return this.colorRamp[4];
       }
       return "#B1B6B6";
@@ -365,20 +389,20 @@ export default {
         layer.setStyle(defaultStyles);
       });
     },
-    setCensusTractStyles(layer) {
+    setCensusTractStyles(layer, feature) {
       const defaultStyle = {
         weight: 0.75,
         color: "#A9A9A9",
         opacity: 1,
-        fillColor: "#B1B6B6",
-        fillOpacity: 0.25,
+        fillColor: this.getCensusTractsFillColor(feature),
+        fillOpacity: 0.5,
       };
       const highlightStyle = {
         weight: 1.5,
         color: "rgb(124, 179, 66)",
         opacity: 0.8,
-        fillColor: "#B1B6B6",
-        fillOpacity: 0.1,
+        fillColor: this.getCensusTractsFillColor(feature),
+        fillOpacity: 0.25,
       };
       layer.setStyle(defaultStyle);
       layer.on("mouseover", () => {
