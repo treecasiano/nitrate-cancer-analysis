@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent>
+    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent bottom>
       <template v-slot:prepend>
         <v-list-item v-if="mini" dense>
           <v-btn icon @click.stop="mini = !mini">
@@ -13,49 +13,64 @@
             <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
         </v-list-item>
-        <v-container v-if="!mini" class="grey lighten-5">
-          <v-row>
-            <v-col cols="12">
-              <v-divider></v-divider>
-              <div>LINEAR REGRESSION PARAMETERS</div>
-              <v-divider></v-divider>
-            </v-col>
-            <v-col cols="6">
-              <v-text-field v-model="idwWeightCancer" label="k: cancer rate"></v-text-field>
-            </v-col>
-            <v-col cols="6">
-              <v-text-field v-model="idwWeightNitrate" label="k: nitrate level"></v-text-field>
-            </v-col>
-            <v-col cols="12" class="mt-4">
-              <v-slider
-                color="secondary"
-                v-model="hexSize"
-                :max="maxHex"
-                :min="minHex"
-                thumb-label="always"
-                label="Hexbin size (km): "
-              ></v-slider>
-              <div>If hexbin size is less than 5km, the calculation can take several minutes.</div>
-            </v-col>
-            <v-col cols="12">
-              <v-btn @click="interpolate" color="secondary" small>Submit</v-btn>
-            </v-col>
-            <v-col>
-              <v-divider></v-divider>
-              <div>RESULTS</div>
-              <v-divider></v-divider>
-            </v-col>
-            <v-col cols="12">
-              <v-flex class="spinnerContainer my-2" v-if="residualsLoading">
-                <v-icon color="primary">fas fa-spin fa-spinner</v-icon>
-              </v-flex>
-              <div v-else>
-                R Squared Value:
-                <span>{{rSquaredResults.toFixed(4)}}</span>
-              </div>
-            </v-col>
-          </v-row>
-        </v-container>
+        <v-form v-model="valid">
+          <v-container v-if="!mini" class="grey lighten-5">
+            <v-divider></v-divider>
+            <div>
+              <strong>LINEAR REGRESSION PARAMETERS</strong>
+            </div>
+            <v-divider></v-divider>
+            <v-row>
+              <v-col cols="12" class="mt-2" style="margin-bottom: -10px;">
+                <div class="text-left">Select power (k) between 1.5 and 3.5.</div>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field v-model="idwWeightCancer" label="k: cancer rate" :rules="powerRules"></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="idwWeightNitrate"
+                  label="k: nitrate level"
+                  :rules="powerRules"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-slider
+                  v-model="hexSize"
+                  color="secondary"
+                  :thumb-size="22"
+                  label="Hexbin size (km): "
+                  :max="maxHex"
+                  :min="minHex"
+                  thumb-label="always"
+                ></v-slider>
+                <v-btn @click="interpolate" color="secondary" :disabled="!valid" small>Submit</v-btn>
+              </v-col>
+              <v-col>
+                <v-divider></v-divider>
+                <div>
+                  <strong>RESULTS</strong>
+                </div>
+                <v-divider></v-divider>
+              </v-col>
+              <v-col cols="12">
+                <v-flex v-if="residualsLoading">
+                  <div
+                    v-if="hexSize<5"
+                    class="text-left"
+                  >If hexbin size is less than 5km, the calculation can take several minutes.</div>
+                  <div>
+                    <v-icon color="primary">fas fa-spin fa-spinner</v-icon>
+                  </div>
+                </v-flex>
+                <div v-else class="text-left">
+                  R Squared Value:
+                  <span>{{rSquaredResults.toFixed(4)}}</span>
+                </div>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-form>
       </template>
     </v-navigation-drawer>
   </v-card>
@@ -95,7 +110,13 @@ export default {
       minHex: 3,
       mini: false,
       minWeight: 1.1,
+      powerRules: [
+        v => !!v || "k is required",
+        v => v <= 3.5 || "k must be a value between 1.5 and 3.5 ",
+        v => v >= 1.5 || "k must be a value between 1.5 and 3.5 ",
+      ],
       rSquaredResults: 0,
+      valid: true,
     };
   },
   methods: {
@@ -224,7 +245,4 @@ export default {
 };
 </script>
 <style>
-.spinnerContainer {
-  height: 50px;
-}
 </style>

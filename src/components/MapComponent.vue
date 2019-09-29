@@ -17,7 +17,6 @@
         <l-control position="topright">
           <MapLayers />
         </l-control>
-        <l-control-scale position="bottomleft"></l-control-scale>
         <l-control position="topleft">
           <v-btn dark color="primary" @click="resetMapView">
             <v-icon>home</v-icon>
