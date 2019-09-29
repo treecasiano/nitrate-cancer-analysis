@@ -82,7 +82,6 @@ const getters = {
       return Math.min(...cluster);
     });
     classBreakPoints.shift();
-    console.log(clusters);
     return { classBreakPoints, clusters };
   },
 };

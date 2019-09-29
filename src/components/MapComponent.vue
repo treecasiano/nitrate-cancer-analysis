@@ -323,7 +323,6 @@ export default {
       const {
         properties: { canrate },
       } = feature;
-      console.log("feature", feature);
       const { classBreakPoints } = this.classesCancerRatesTracts;
       if (canrate < classBreakPoints[0]) {
         return this.colorRamp[0];
