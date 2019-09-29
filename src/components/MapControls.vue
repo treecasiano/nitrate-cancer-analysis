@@ -67,7 +67,7 @@
                   <v-checkbox
                     :disabled="!wellsIDW.features"
                     v-model="displayStatusChart"
-                    label="Display Scatter Plot"
+                    label="Display Chart of Interpolated and Predicted Values"
                     data-cy="checkbox--chart"
                     color="primary"
                   ></v-checkbox>
@@ -167,7 +167,7 @@ export default {
           "cancerRate"
         );
 
-        const { features } = cancerRatesAggregatedToNitrateHexbins;
+        let { features } = cancerRatesAggregatedToNitrateHexbins;
         // clone features so as to not change the original array of features
         const clonedFeatures = cloneDeep(features);
         clonedFeatures.forEach(feature => {
