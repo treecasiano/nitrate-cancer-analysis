@@ -17,9 +17,7 @@
           <v-container v-if="!mini" class="grey lighten-5">
             <div class="mapControls__heading">
               <v-divider></v-divider>
-              <div>
-                <strong>LINEAR REGRESSION PARAMETERS</strong>
-              </div>
+              <div>LINEAR REGRESSION PARAMETERS</div>
               <v-divider></v-divider>
             </div>
             <v-row>
@@ -50,9 +48,7 @@
               </v-col>
               <v-col class="mapControls__results">
                 <v-divider></v-divider>
-                <div>
-                  <strong>RESULTS</strong>
-                </div>
+                <div>RESULTS</div>
                 <v-divider></v-divider>
               </v-col>
               <v-col cols="12">
@@ -74,7 +70,7 @@
                     class="checkbox--chart"
                     color="primary"
                   ></v-checkbox>
-                  <div>
+                  <div v-if="rSquaredResults">
                     <span>R Squared Value: {{rSquaredResults.toFixed(4)}}</span>
                   </div>
                 </div>
@@ -112,6 +108,7 @@ export default {
     },
     ...mapState({
       residualsLoading: state => state.residuals.loading,
+      rSquaredResults: state => state.residuals.rSquared,
       tractCentroids: state => state.tracts.centroids,
       tractsData: state => state.tracts.data,
       wellsData: state => state.wells.data,
@@ -133,7 +130,6 @@ export default {
         v => v <= 3.5 || "k must be a value between 1.5 and 3.5 ",
         v => v >= 1.5 || "k must be a value between 1.5 and 3.5 ",
       ],
-      rSquaredResults: 0,
       valid: true,
     };
   },
@@ -224,10 +220,13 @@ export default {
         });
         this.setPredictedValues(predictedVals);
         // calculate rSquared and save to component state
-        this.rSquaredResults = this.calculateRSquared(
+        const rSquaredResults = this.calculateRSquared(
           line,
           cancerRatesAggregatedToNitrateHexbins
         );
+
+        this.setRSquared(rSquaredResults);
+
         this.setWellsIDW(cancerRatesAggregatedToNitrateHexbins);
         // set this same feature collection as the tracts IDW, which will be styled differently in the UI
         this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
@@ -270,6 +269,7 @@ export default {
       setPredictedValues: "chart/setPredictedValues",
       setResidualsLoading: "residuals/setLoadingStatus",
       setResiduals: "residuals/setHexbins",
+      setRSquared: "residuals/setRSquared",
       setWellsIDW: "wells/setIDW",
       setTractsIDW: "tracts/setIDW",
     }),
@@ -278,6 +278,10 @@ export default {
 </script>
 
 <style>
+.mapControls__heading,
+.mapControls__results {
+  font-weight: bold;
+}
 @media only screen and (max-width: 700px) {
   .checkbox--chart {
     display: none;

@@ -72,9 +72,10 @@
         <l-control position="topleft">
           <MapControls />
         </l-control>
-        <l-control v-if="displayChart" class="chart" style="position: fixed; top: 5%; left: 30%;">
+        <l-control v-if="displayChart" class="chart" style="position: fixed; top: 7%; left: 30%;">
           <v-card>
             <v-card-title dense>
+              <div class="overline">Observed & Predicted Cancer Rates</div>
               <v-spacer></v-spacer>
               <v-btn small icon @click="setDisplayStatusChart(false)">
                 <v-icon>close</v-icon>
@@ -102,9 +103,8 @@ import { mapGetters, mapMutations, mapState } from "vuex";
 import ScatterChart from "@/components/ScatterChart.vue";
 
 // TODO: Pull scatter chart into its own component
-// TODO: Add close button to scatter chart
 // TODO: Try to clip the hexbins to shape of Wisconsin   https://www.npmjs.com/package/turf-clip
-// TODO: fix x-axis labeling
+// TODO: fix x-axis labeling (remove - values)
 
 const attribution =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
@@ -155,7 +155,7 @@ export default {
               },
               ticks: {
                 beginAtZero: true,
-                max: 25,
+                max: 15,
                 stepSize: 1,
               },
               type: "linear",

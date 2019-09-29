@@ -21,6 +21,9 @@ const mutations = {
   setLoadingStatus(state, loading) {
     state.loading = loading;
   },
+  setRSquared(state, rSquared) {
+    state.rSquared = rSquared;
+  },
 };
 
 const state = {
@@ -28,6 +31,7 @@ const state = {
   displayStatusChart: false,
   hexbins: {},
   loading: false,
+  rSquared: null,
   standardDeviation: 0,
 };
 
