@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent bottom>
+    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent width="250">
       <template v-slot:prepend>
         <v-list-item v-if="mini" dense>
           <v-btn icon @click.stop="mini = !mini">
@@ -64,8 +64,15 @@
                   </div>
                 </v-flex>
                 <div v-else class="text-left">
-                  R Squared Value:
-                  <span>{{rSquaredResults.toFixed(4)}}</span>
+                  <v-checkbox
+                    v-model="displayStatusChart"
+                    label="Display Scatter Plot of Residuals"
+                    data-cy="checkbox--chart"
+                    color="primary"
+                  ></v-checkbox>
+                  <div>
+                    <span>R Squared Value: {{rSquaredResults.toFixed(4)}}</span>
+                  </div>
                 </div>
               </v-col>
             </v-row>
@@ -90,6 +97,14 @@ const {
 
 export default {
   computed: {
+    displayStatusChart: {
+      get() {
+        return this.$store.state.residuals.displayStatusChart;
+      },
+      set(value) {
+        this.displayChart(value);
+      },
+    },
     ...mapState({
       residualsLoading: state => state.residuals.loading,
       tractCentroids: state => state.tracts.centroids,
@@ -229,6 +244,7 @@ export default {
       return rSquared(samples, regressionLine);
     },
     ...mapMutations({
+      displayChart: "residuals/setDisplayStatusChart",
       displayResiduals: "residuals/setDisplayStatus",
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
@@ -242,5 +258,4 @@ export default {
   },
 };
 </script>
-<style>
-</style>
+
