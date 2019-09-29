@@ -119,13 +119,14 @@ export default {
   computed: {
     chartData() {
       const interpolatedValues = this.$store.state.chart.interpolatedValues;
+      const predictedValues = this.$store.state.chart.predictedValues;
       const interpolatedData = interpolatedValues.map(dataPoint => {
         return {
           x: dataPoint[0].toFixed(4),
           y: (dataPoint[1] * 100).toFixed(4),
         };
       });
-      const predictedData = interpolatedValues.map(dataPoint => {
+      const predictedData = predictedValues.map(dataPoint => {
         return {
           x: dataPoint[0].toFixed(4),
           y: (dataPoint[1] * 100).toFixed(4),

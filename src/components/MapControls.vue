@@ -211,8 +211,14 @@ export default {
           feature.properties.predictedCancerRate = predictedCancerRate;
           feature.properties.residual = residual;
         });
-        Object.assign(features, reclonedFeatures);
 
+        Object.assign(features, reclonedFeatures);
+        const predictedVals = features.map(feature => {
+          const { properties } = feature;
+          // nitrate level = x (independent variable), predicted cancer rate = y (dependent variable)
+          return [properties.nitr_ran, properties.predictedCancerRate];
+        });
+        this.setPredictedValues(predictedVals);
         // calculate rSquared and save to component state
         this.rSquaredResults = this.calculateRSquared(
           line,
@@ -257,6 +263,7 @@ export default {
       displayWellsIDW: "wells/setDisplayStatusIDW",
       displayTractsIDW: "tracts/setDisplayStatusIDW",
       setInterpolatedValues: "chart/setInterpolatedValues",
+      setPredictedValues: "chart/setPredictedValues",
       setResidualsLoading: "residuals/setLoadingStatus",
       setResiduals: "residuals/setHexbins",
       setWellsIDW: "wells/setIDW",
