@@ -183,6 +183,7 @@ export default {
         // set this same feature collection as the tracts IDW, which will be styled differently in the UI
         this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
         this.setResiduals(cancerRatesAggregatedToNitrateHexbins);
+        this.displayTracts(false);
         this.displayResiduals(true);
         this.setResidualsLoading(false);
       });

@@ -40,7 +40,7 @@ const state = {
 };
 
 const getters = {
-  getClasses: state => {
+  getClassesIDW: state => {
     const { features } = state.idw;
     const nitratesArray = features.map(feature => {
       const {
