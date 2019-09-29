@@ -142,14 +142,12 @@ export default {
             {
               scaleLabel: {
                 display: true,
-                labelString: "Cancer Rates",
+                labelString: "Nitrate Levels (ppm)",
               },
               ticks: {
                 beginAtZero: true,
-                stepSize: 5,
-                callback: (value, index, values) => {
-                  return value + "%";
-                },
+                max: 25,
+                stepSize: 1,
               },
               type: "linear",
               position: "bottom",
@@ -159,11 +157,15 @@ export default {
             {
               scaleLabel: {
                 display: true,
-                labelString: "Nitrate Levels (ppm)",
+                labelString: "Cancer Rates",
               },
               ticks: {
                 beginAtZero: true,
+                max: 60,
                 stepSize: 5,
+                callback: (value, index, values) => {
+                  return value + "%";
+                },
               },
               type: "linear",
               position: "bottom",
@@ -361,7 +363,7 @@ export default {
         datasets: [
           {
             label: "Interpolated Values",
-            backgroundColor: "rgb(124, 179, 66)",
+            backgroundColor: "rgba(124, 179, 66, .5)",
             data: interpolatedData,
           },
           {
