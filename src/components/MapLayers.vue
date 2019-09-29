@@ -16,9 +16,11 @@
         <v-container v-if="!mini">
           <v-layout>
             <v-flex>
-              <v-divider></v-divider>
-              <div>BASE LAYERS</div>
-              <v-divider class="mb-4"></v-divider>
+              <div class="mapLayers__heading">
+                <v-divider></v-divider>
+                <div>BASE LAYERS</div>
+                <v-divider class="mb-4"></v-divider>
+              </div>
               <v-checkbox
                 v-model="displayStatusWells"
                 :label="`Well Locations`"
@@ -33,9 +35,11 @@
                 @change="hideAllResultsLayers"
               ></v-checkbox>
               <div v-if="wellsIDW.features">
-                <v-divider></v-divider>
-                <div>RESULT LAYERS</div>
-                <v-divider class="mb-4"></v-divider>
+                <div class="mapLayers__heading">
+                  <v-divider></v-divider>
+                  <div>RESULT LAYERS</div>
+                  <v-divider class="mb-4"></v-divider>
+                </div>
                 <v-checkbox
                   v-if="wellsIDW.features"
                   v-model="displayStatusWellsIDW"
@@ -167,4 +171,14 @@ export default {
 };
 </script>
 
+<style>
+.mapLayers__heading {
+  font-weight: bold;
+}
+@media only screen and (max-height: 500px) {
+  .mapLayers__heading {
+    display: none;
+  }
+}
+</style>
 

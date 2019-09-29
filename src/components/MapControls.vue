@@ -15,13 +15,15 @@
         </v-list-item>
         <v-form v-model="valid">
           <v-container v-if="!mini" class="grey lighten-5">
-            <v-divider></v-divider>
-            <div>
-              <strong>LINEAR REGRESSION PARAMETERS</strong>
+            <div class="mapControls__heading">
+              <v-divider></v-divider>
+              <div>
+                <strong>LINEAR REGRESSION PARAMETERS</strong>
+              </div>
+              <v-divider></v-divider>
             </div>
-            <v-divider></v-divider>
             <v-row>
-              <v-col cols="12" class="mt-2" style="margin-bottom: -10px;">
+              <v-col cols="12" class="mt-0" style="margin-bottom: -10px;">
                 <div class="text-left">Select power (k) between 1.5 and 3.5.</div>
               </v-col>
               <v-col cols="6">
@@ -46,7 +48,7 @@
                 ></v-slider>
                 <v-btn @click="interpolate" color="secondary" :disabled="!valid" small>Submit</v-btn>
               </v-col>
-              <v-col>
+              <v-col class="mapControls__results">
                 <v-divider></v-divider>
                 <div>
                   <strong>RESULTS</strong>
@@ -87,6 +89,7 @@
 <script>
 // TODO: Add legends
 // TODO: Add text to About page
+// TODO: Make chart responsive
 
 import { mapMutations, mapState } from "vuex";
 const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
@@ -277,6 +280,18 @@ export default {
 <style>
 @media only screen and (max-width: 700px) {
   .checkbox--chart {
+    display: none;
+  }
+}
+
+@media only screen and (max-height: 500px) {
+  .checkbox--chart {
+    display: none;
+  }
+  .mapControls__results {
+    display: none;
+  }
+  .mapControls__heading {
     display: none;
   }
 }

@@ -85,7 +85,7 @@
             </v-card>
           </v-card>
         </l-control>
-        <l-control style="position: fixed; bottom: 4%; right: 10%">
+        <l-control style="position: fixed; bottom: 4%; right: 10%" class="legend">
           <v-card style="width: 200px; height: 100px">LEGEND</v-card>
         </l-control>
         <l-control-zoom position="bottomright"></l-control-zoom>
@@ -630,6 +630,16 @@ input {
 /* MEDIA QUERIES */
 
 @media only screen and (max-width: 700px) {
+  .chart {
+    display: none;
+  }
+}
+
+@media only screen and (max-height: 500px) {
+  .legend {
+    display: none;
+    right: 15% !important;
+  }
   .chart {
     display: none;
   }
