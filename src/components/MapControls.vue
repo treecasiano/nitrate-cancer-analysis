@@ -65,8 +65,9 @@
                 </v-flex>
                 <div v-else class="text-left">
                   <v-checkbox
+                    :disabled="!wellsIDW.features"
                     v-model="displayStatusChart"
-                    label="Display Scatter Plot of Residuals"
+                    label="Display Scatter Plot"
                     data-cy="checkbox--chart"
                     color="primary"
                   ></v-checkbox>
@@ -99,7 +100,7 @@ export default {
   computed: {
     displayStatusChart: {
       get() {
-        return this.$store.state.residuals.displayStatusChart;
+        return this.$store.state.chart.displayStatus;
       },
       set(value) {
         this.displayChart(value);
@@ -201,6 +202,10 @@ export default {
           const {
             properties: { nitr_ran, cancerRate },
           } = feature;
+          if (nitr_ran < 0) {
+            console.log("nitr_ran is less than 0", nitr_ran);
+            // TODO(): set interpolated nitrate rate to 0 if interpolation makes it a negative number
+          }
           const predictedCancerRate = line(nitr_ran);
           const residual = predictedCancerRate - cancerRate;
           feature.properties.predictedCancerRate = predictedCancerRate;
@@ -229,6 +234,7 @@ export default {
         // nitrate level = x (independent variable), cancer rate = y (dependent variable)
         return [properties.nitr_ran, properties.cancerRate];
       });
+      this.setInterpolatedValues(interpolatedVals);
       // the regression equation is the slope and y-intercept of a regression line
       // so, for any value of x (nitrate level as slope), we can predict y (cancer rate as intercept)
       const slopeAndIntercept = linearRegression(interpolatedVals);
@@ -244,12 +250,13 @@ export default {
       return rSquared(samples, regressionLine);
     },
     ...mapMutations({
-      displayChart: "residuals/setDisplayStatusChart",
+      displayChart: "chart/setDisplayStatus",
       displayResiduals: "residuals/setDisplayStatus",
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
       displayWellsIDW: "wells/setDisplayStatusIDW",
       displayTractsIDW: "tracts/setDisplayStatusIDW",
+      setInterpolatedValues: "chart/setInterpolatedValues",
       setResidualsLoading: "residuals/setLoadingStatus",
       setResiduals: "residuals/setHexbins",
       setWellsIDW: "wells/setIDW",

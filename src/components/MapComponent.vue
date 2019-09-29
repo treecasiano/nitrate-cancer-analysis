@@ -73,7 +73,7 @@
           <MapControls />
         </l-control>
         <l-control v-if="displayChart" style="position: fixed; top: 15%; right: 40%">
-          <v-card color="white" style="height: 250px; width: 250px;">
+          <v-card color="white" style="height: 450px; width: 450px;">
             <ScatterChart :chart-data="chartData" :options="chartOptions" legendId="legend"></ScatterChart>
           </v-card>
         </l-control>
@@ -94,6 +94,8 @@ import { mapGetters, mapState } from "vuex";
 import ScatterChart from "@/components/ScatterChart.vue";
 
 // TODO: Pull scatter chart into its own component
+// TODO: Add close button to scatter chart
+// TODO: Try to clip the hexbins to shape of Wisconsin   https://www.npmjs.com/package/turf-clip
 
 const attribution =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
@@ -116,30 +118,58 @@ export default {
   },
   computed: {
     chartData() {
-      const data = [
-        { x: 14, y: 20 },
-        { x: 7, y: 25 },
-        { x: 10, y: 13 },
-        { x: 10, y: 3 },
-        { x: 14, y: 14 },
-      ];
+      const interpolatedValues = this.$store.state.chart.interpolatedValues;
+      const interpolatedData = interpolatedValues.map(dataPoint => {
+        return {
+          x: dataPoint[0].toFixed(4),
+          y: (dataPoint[1] * 100).toFixed(4),
+        };
+      });
+      const predictedData = interpolatedValues.map(dataPoint => {
+        return {
+          x: dataPoint[0].toFixed(4),
+          y: (dataPoint[1] * 100).toFixed(4),
+        };
+      });
+      const data = { interpolatedData, predictedData };
       return this.fillChart(data);
     },
     chartOptions() {
-      const options = {};
-      scales: {
-        xAxes: [
-          {
-            ticks: {
-              beginAtZero: true,
-              max: 100,
-              stepSize: 10,
+      const options = {
+        scales: {
+          xAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: "Cancer Rates",
+              },
+              ticks: {
+                beginAtZero: true,
+                stepSize: 5,
+                callback: (value, index, values) => {
+                  return value + "%";
+                },
+              },
+              type: "linear",
+              position: "bottom",
             },
-            type: "linear",
-            position: "bottom",
-          },
-        ];
-      }
+          ],
+          yAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: "Nitrate Levels (ppm)",
+              },
+              ticks: {
+                beginAtZero: true,
+                stepSize: 5,
+              },
+              type: "linear",
+              position: "bottom",
+            },
+          ],
+        },
+      };
       return options;
     },
     optionsCensusTracts() {
@@ -219,7 +249,7 @@ export default {
       displayResiduals: state => state.residuals.displayStatus,
       displayTracts: state => state.tracts.displayStatus,
       displayCancerRatesIDW: state => state.tracts.displayStatusIDW,
-      displayChart: state => state.residuals.displayStatusChart,
+      displayChart: state => state.chart.displayStatus,
       displayWells: state => state.wells.displayStatus,
       displayWellsIDW: state => state.wells.displayStatusIDW,
       idwWells: state => state.wells.idw,
@@ -318,18 +348,25 @@ export default {
     fillChart(chartData) {
       let chartConfig = {};
       let labels = [];
-      let data = [];
+      let interpolatedData = [];
+      let predictedData = [];
       if (chartData) {
-        labels = Object.keys(chartData);
-        data = Object.values(chartData);
+        labels = Object.keys(chartData.interpolatedData);
+        interpolatedData = Object.values(chartData.interpolatedData);
+        predictedData = Object.values(chartData.predictedData);
       }
       chartConfig = {
         labels,
         datasets: [
           {
-            label: "Residuals",
-            backgroundColor: "yellowgreen",
-            data,
+            label: "Interpolated Values",
+            backgroundColor: "rgb(124, 179, 66)",
+            data: interpolatedData,
+          },
+          {
+            label: "Predicted Values",
+            backgroundColor: "rgb(0, 131, 143)",
+            data: predictedData,
           },
         ],
         borderWidth: 3,
