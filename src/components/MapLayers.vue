@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent>
+    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent width="220">
       <template v-slot:prepend>
         <div v-if="mini">
           <v-btn icon @click.stop="mini = !mini">
@@ -18,7 +18,7 @@
             <v-flex>
               <v-divider></v-divider>
               <div>BASE LAYERS</div>
-              <v-divider class="mb-2"></v-divider>
+              <v-divider class="mb-4"></v-divider>
               <v-checkbox
                 v-model="displayStatusWells"
                 :label="`Well Locations`"
@@ -35,7 +35,7 @@
               <div v-if="wellsIDW.features">
                 <v-divider></v-divider>
                 <div>RESULT LAYERS</div>
-                <v-divider class="mb-2"></v-divider>
+                <v-divider class="mb-4"></v-divider>
                 <v-checkbox
                   v-if="wellsIDW.features"
                   v-model="displayStatusWellsIDW"
@@ -167,20 +167,4 @@ export default {
 };
 </script>
 
-<style>
-/* vuetify style overrides */
-.v-input--checkbox {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.v-input--slot {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.v-input--selection-controls__input {
-  height: 0 !important;
-}
-</style>
 

@@ -15,12 +15,12 @@
         v-bind:style="`height: calc(${height}vh - ${offsetHeight}px); width: ${width}%;`"
       >
         <l-control position="topright">
-          <MapLayers />
-        </l-control>
-        <l-control position="topleft">
-          <v-btn dark color="primary" @click="resetMapView">
+          <v-btn dark color="primary" @click="resetMapView" style="width: 80px;">
             <v-icon>home</v-icon>
           </v-btn>
+        </l-control>
+        <l-control position="topright">
+          <MapLayers />
         </l-control>
         <l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
         <div v-if="displayWells">
@@ -72,6 +72,14 @@
         <l-control position="topleft">
           <MapControls />
         </l-control>
+        <l-control v-if="displayChart" style="position: fixed; top: 15%; right: 40%">
+          <v-card color="white" style="height: 250px; width: 250px;">
+            <ScatterChart :chart-data="chartData" :options="chartOptions" legendId="legend"></ScatterChart>
+          </v-card>
+        </l-control>
+        <l-control style="position: fixed; bottom: 5%; right: 10%">
+          <v-card style="width: 200px; height: 100px">LEGEND</v-card>
+        </l-control>
         <l-control-zoom position="bottomright"></l-control-zoom>
       </l-map>
     </v-layout>
@@ -83,6 +91,9 @@ import { latLngBounds } from "leaflet";
 import MapLayers from "@/components/MapLayers.vue";
 import MapControls from "@/components/MapControls.vue";
 import { mapGetters, mapState } from "vuex";
+import ScatterChart from "@/components/ScatterChart.vue";
+
+// TODO: Pull scatter chart into its own component
 
 const attribution =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
@@ -101,8 +112,36 @@ export default {
   components: {
     MapControls,
     MapLayers,
+    ScatterChart,
   },
   computed: {
+    chartData() {
+      const data = [
+        { x: 14, y: 20 },
+        { x: 7, y: 25 },
+        { x: 10, y: 13 },
+        { x: 10, y: 3 },
+        { x: 14, y: 14 },
+      ];
+      return this.fillChart(data);
+    },
+    chartOptions() {
+      const options = {};
+      scales: {
+        xAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              max: 100,
+              stepSize: 10,
+            },
+            type: "linear",
+            position: "bottom",
+          },
+        ];
+      }
+      return options;
+    },
     optionsCensusTracts() {
       return {
         onEachFeature: this.onEachCensusTractFeature,
@@ -180,6 +219,7 @@ export default {
       displayResiduals: state => state.residuals.displayStatus,
       displayTracts: state => state.tracts.displayStatus,
       displayCancerRatesIDW: state => state.tracts.displayStatusIDW,
+      displayChart: state => state.residuals.displayStatusChart,
       displayWells: state => state.wells.displayStatus,
       displayWellsIDW: state => state.wells.displayStatusIDW,
       idwWells: state => state.wells.idw,
@@ -274,6 +314,27 @@ export default {
         return markerObject;
       });
       this.markersArray = markersArray;
+    },
+    fillChart(chartData) {
+      let chartConfig = {};
+      let labels = [];
+      let data = [];
+      if (chartData) {
+        labels = Object.keys(chartData);
+        data = Object.values(chartData);
+      }
+      chartConfig = {
+        labels,
+        datasets: [
+          {
+            label: "Residuals",
+            backgroundColor: "yellowgreen",
+            data,
+          },
+        ],
+        borderWidth: 3,
+      };
+      return chartConfig;
     },
     getNitrateLevelsIDWFillColor(feature) {
       const {
@@ -493,8 +554,24 @@ input {
   border-radius: 10% !important;
   text-align: left;
 }
+
+/* vuetify style overrides */
+.v-input--checkbox {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.v-input .v-label {
+  line-height: 0.8rem !important;
+  font-size: 0.8rem !important;
+}
+
+.v-input--slot {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.v-input--selection-controls__input {
+  height: 0 !important;
+}
 </style>
-
-
-
-
