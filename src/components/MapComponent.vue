@@ -84,6 +84,10 @@ import MapLayers from "@/components/MapLayers.vue";
 import MapControls from "@/components/MapControls.vue";
 import { mapGetters, mapState } from "vuex";
 
+const attribution =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const url =
+  "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
 const defaultCenter = [44.6656476, -90.2436474];
 const defaultZoom = 7;
 const popupOptions = {
@@ -195,13 +199,11 @@ export default {
   },
   data() {
     return {
-      url:
-        "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
+      url,
       zoom: defaultZoom,
       center: defaultCenter,
       bounds: null,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      attribution,
       subdomains: "abcd",
       loading: false,
       maxBounds: latLngBounds([

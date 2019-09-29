@@ -76,8 +76,6 @@
   </v-card>
 </template>
 <script>
-// TODO: Constrain power inputs
-// TODO: Make help text for each input
 // TODO: Add legends
 // TODO: Add text to About page
 

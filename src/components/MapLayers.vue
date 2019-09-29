@@ -1,18 +1,13 @@
 <template>
   <v-card>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant.sync="mini"
-      permanent
-      style="max-width: 200px;"
-    >
+    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent>
       <template v-slot:prepend>
         <div v-if="mini">
           <v-btn icon @click.stop="mini = !mini">
             <v-icon>mdi-layers</v-icon>
           </v-btn>
         </div>
-        <v-list-item v-if="!mini">
+        <v-list-item v-if="!mini" dense>
           <v-spacer></v-spacer>
           <v-btn small icon @click.stop="mini = !mini">
             <v-icon>mdi-close</v-icon>
