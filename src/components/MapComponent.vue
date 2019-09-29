@@ -72,12 +72,20 @@
         <l-control position="topleft">
           <MapControls />
         </l-control>
-        <l-control v-if="displayChart" style="position: fixed; top: 15%; right: 40%">
-          <v-card color="white" style="height: 450px; width: 450px;">
-            <ScatterChart :chart-data="chartData" :options="chartOptions" legendId="legend"></ScatterChart>
+        <l-control v-if="displayChart" class="chart" style="position: fixed; top: 5%; left: 30%;">
+          <v-card>
+            <v-card-title dense>
+              <v-spacer></v-spacer>
+              <v-btn small icon @click="setDisplayStatusChart(false)">
+                <v-icon>close</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card color="white" style="height: 400px; width: 400px;">
+              <ScatterChart :chart-data="chartData" :options="chartOptions" legendId="legend"></ScatterChart>
+            </v-card>
           </v-card>
         </l-control>
-        <l-control style="position: fixed; bottom: 5%; right: 10%">
+        <l-control style="position: fixed; bottom: 4%; right: 10%">
           <v-card style="width: 200px; height: 100px">LEGEND</v-card>
         </l-control>
         <l-control-zoom position="bottomright"></l-control-zoom>
@@ -90,12 +98,13 @@
 import { latLngBounds } from "leaflet";
 import MapLayers from "@/components/MapLayers.vue";
 import MapControls from "@/components/MapControls.vue";
-import { mapGetters, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import ScatterChart from "@/components/ScatterChart.vue";
 
 // TODO: Pull scatter chart into its own component
 // TODO: Add close button to scatter chart
 // TODO: Try to clip the hexbins to shape of Wisconsin   https://www.npmjs.com/package/turf-clip
+// TODO: fix x-axis labeling
 
 const attribution =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
@@ -558,6 +567,9 @@ export default {
     zoomUpdated(zoom) {
       this.zoom = zoom;
     },
+    ...mapMutations({
+      setDisplayStatusChart: "chart/setDisplayStatus",
+    }),
   },
   props: {
     height: String,
@@ -613,5 +625,13 @@ input {
 
 .v-input--selection-controls__input {
   height: 0 !important;
+}
+
+/* MEDIA QUERIES */
+
+@media only screen and (max-width: 700px) {
+  .chart {
+    display: none;
+  }
 }
 </style>

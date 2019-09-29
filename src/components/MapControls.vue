@@ -69,6 +69,7 @@
                     v-model="displayStatusChart"
                     label="Display Chart of Interpolated and Predicted Values"
                     data-cy="checkbox--chart"
+                    class="checkbox--chart"
                     color="primary"
                   ></v-checkbox>
                   <div>
@@ -273,3 +274,10 @@ export default {
 };
 </script>
 
+<style>
+@media only screen and (max-width: 700px) {
+  .checkbox--chart {
+    display: none;
+  }
+}
+</style>
