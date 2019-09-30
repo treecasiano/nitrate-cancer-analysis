@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent bottom>
+    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent width="250">
       <template v-slot:prepend>
         <v-list-item v-if="mini" dense>
           <v-btn icon @click.stop="mini = !mini">
@@ -15,13 +15,13 @@
         </v-list-item>
         <v-form v-model="valid">
           <v-container v-if="!mini" class="grey lighten-5">
-            <v-divider></v-divider>
-            <div>
-              <strong>LINEAR REGRESSION PARAMETERS</strong>
+            <div class="mapControls__heading">
+              <v-divider></v-divider>
+              <div>LINEAR REGRESSION PARAMETERS</div>
+              <v-divider></v-divider>
             </div>
-            <v-divider></v-divider>
             <v-row>
-              <v-col cols="12" class="mt-2" style="margin-bottom: -10px;">
+              <v-col cols="12" class="mt-0" style="margin-bottom: -10px;">
                 <div class="text-left">Select power (k) between 1.5 and 3.5.</div>
               </v-col>
               <v-col cols="6">
@@ -46,11 +46,9 @@
                 ></v-slider>
                 <v-btn @click="interpolate" color="secondary" :disabled="!valid" small>Submit</v-btn>
               </v-col>
-              <v-col>
+              <v-col class="mapControls__results">
                 <v-divider></v-divider>
-                <div>
-                  <strong>RESULTS</strong>
-                </div>
+                <div>RESULTS</div>
                 <v-divider></v-divider>
               </v-col>
               <v-col cols="12">
@@ -64,8 +62,17 @@
                   </div>
                 </v-flex>
                 <div v-else class="text-left">
-                  R Squared Value:
-                  <span>{{rSquaredResults.toFixed(4)}}</span>
+                  <v-checkbox
+                    :disabled="!wellsIDW.features"
+                    v-model="displayStatusChart"
+                    label="Display Chart of Interpolated and Predicted Values"
+                    data-cy="checkbox--chart"
+                    class="checkbox--chart"
+                    color="primary"
+                  ></v-checkbox>
+                  <div v-if="rSquaredResults">
+                    <span>R Squared Value: {{rSquaredResults.toFixed(4)}}</span>
+                  </div>
                 </div>
               </v-col>
             </v-row>
@@ -78,6 +85,7 @@
 <script>
 // TODO: Add legends
 // TODO: Add text to About page
+// TODO: Make chart responsive
 
 import { mapMutations, mapState } from "vuex";
 const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
@@ -90,8 +98,17 @@ const {
 
 export default {
   computed: {
+    displayStatusChart: {
+      get() {
+        return this.$store.state.chart.displayStatus;
+      },
+      set(value) {
+        this.displayChart(value);
+      },
+    },
     ...mapState({
       residualsLoading: state => state.residuals.loading,
+      rSquaredResults: state => state.residuals.rSquared,
       tractCentroids: state => state.tracts.centroids,
       tractsData: state => state.tracts.data,
       wellsData: state => state.wells.data,
@@ -113,7 +130,6 @@ export default {
         v => v <= 3.5 || "k must be a value between 1.5 and 3.5 ",
         v => v >= 1.5 || "k must be a value between 1.5 and 3.5 ",
       ],
-      rSquaredResults: 0,
       valid: true,
     };
   },
@@ -151,7 +167,7 @@ export default {
           "cancerRate"
         );
 
-        const { features } = cancerRatesAggregatedToNitrateHexbins;
+        let { features } = cancerRatesAggregatedToNitrateHexbins;
         // clone features so as to not change the original array of features
         const clonedFeatures = cloneDeep(features);
         clonedFeatures.forEach(feature => {
@@ -186,18 +202,31 @@ export default {
           const {
             properties: { nitr_ran, cancerRate },
           } = feature;
+          if (nitr_ran < 0) {
+            console.log("nitr_ran is less than 0", nitr_ran);
+            // TODO(): set interpolated nitrate rate to 0 if interpolation makes it a negative number
+          }
           const predictedCancerRate = line(nitr_ran);
           const residual = predictedCancerRate - cancerRate;
           feature.properties.predictedCancerRate = predictedCancerRate;
           feature.properties.residual = residual;
         });
-        Object.assign(features, reclonedFeatures);
 
+        Object.assign(features, reclonedFeatures);
+        const predictedVals = features.map(feature => {
+          const { properties } = feature;
+          // nitrate level = x (independent variable), predicted cancer rate = y (dependent variable)
+          return [properties.nitr_ran, properties.predictedCancerRate];
+        });
+        this.setPredictedValues(predictedVals);
         // calculate rSquared and save to component state
-        this.rSquaredResults = this.calculateRSquared(
+        const rSquaredResults = this.calculateRSquared(
           line,
           cancerRatesAggregatedToNitrateHexbins
         );
+
+        this.setRSquared(rSquaredResults);
+
         this.setWellsIDW(cancerRatesAggregatedToNitrateHexbins);
         // set this same feature collection as the tracts IDW, which will be styled differently in the UI
         this.setTractsIDW(cancerRatesAggregatedToNitrateHexbins);
@@ -214,6 +243,7 @@ export default {
         // nitrate level = x (independent variable), cancer rate = y (dependent variable)
         return [properties.nitr_ran, properties.cancerRate];
       });
+      this.setInterpolatedValues(interpolatedVals);
       // the regression equation is the slope and y-intercept of a regression line
       // so, for any value of x (nitrate level as slope), we can predict y (cancer rate as intercept)
       const slopeAndIntercept = linearRegression(interpolatedVals);
@@ -229,18 +259,44 @@ export default {
       return rSquared(samples, regressionLine);
     },
     ...mapMutations({
+      displayChart: "chart/setDisplayStatus",
       displayResiduals: "residuals/setDisplayStatus",
       displayTracts: "tracts/setDisplayStatus",
       displayWells: "wells/setDisplayStatus",
       displayWellsIDW: "wells/setDisplayStatusIDW",
       displayTractsIDW: "tracts/setDisplayStatusIDW",
+      setInterpolatedValues: "chart/setInterpolatedValues",
+      setPredictedValues: "chart/setPredictedValues",
       setResidualsLoading: "residuals/setLoadingStatus",
       setResiduals: "residuals/setHexbins",
+      setRSquared: "residuals/setRSquared",
       setWellsIDW: "wells/setIDW",
       setTractsIDW: "tracts/setIDW",
     }),
   },
 };
 </script>
+
 <style>
+.mapControls__heading,
+.mapControls__results {
+  font-weight: bold;
+}
+@media only screen and (max-width: 700px) {
+  .checkbox--chart {
+    display: none;
+  }
+}
+
+@media only screen and (max-height: 500px) {
+  .checkbox--chart {
+    display: none;
+  }
+  .mapControls__results {
+    display: none;
+  }
+  .mapControls__heading {
+    display: none;
+  }
+}
 </style>

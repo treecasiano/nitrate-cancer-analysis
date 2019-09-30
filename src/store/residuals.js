@@ -4,6 +4,9 @@ const mutations = {
   setDisplayStatus(state, status) {
     state.displayStatus = status;
   },
+  setDisplayStatusChart(state, status) {
+    state.displayStatusChart = status;
+  },
   setHexbins(state, hexbins) {
     const { features } = hexbins;
     const residualsArray = features.map(feature => {
@@ -18,12 +21,17 @@ const mutations = {
   setLoadingStatus(state, loading) {
     state.loading = loading;
   },
+  setRSquared(state, rSquared) {
+    state.rSquared = rSquared;
+  },
 };
 
 const state = {
   displayStatus: true,
+  displayStatusChart: false,
   hexbins: {},
   loading: false,
+  rSquared: null,
   standardDeviation: 0,
 };
 
