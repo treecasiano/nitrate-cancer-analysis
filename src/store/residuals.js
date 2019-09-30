@@ -27,7 +27,7 @@ const mutations = {
 };
 
 const state = {
-  displayStatus: true,
+  displayStatus: false,
   displayStatusChart: false,
   hexbins: {},
   loading: false,

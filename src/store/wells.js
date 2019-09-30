@@ -34,7 +34,7 @@ const mutations = {
 const state = {
   data: {},
   displayStatus: true,
-  displayStatusIDW: true,
+  displayStatusIDW: false,
   idw: {},
   loading: false,
 };
