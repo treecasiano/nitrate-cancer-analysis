@@ -86,8 +86,10 @@
             </v-card>
           </v-card>
         </l-control>
-        <l-control style="position: fixed; bottom: 4%; right: 10%" class="legend">
-          <v-card style="width: 200px; height: 100px">LEGEND</v-card>
+        <l-control style="position: fixed; bottom: 4%; right: 8%" class="legend">
+          <v-card style="width: 240px; height: 140px">
+            <MapLegend />
+          </v-card>
         </l-control>
         <l-control-zoom position="bottomright"></l-control-zoom>
       </l-map>
@@ -97,14 +99,15 @@
 
 <script>
 import { latLngBounds } from "leaflet";
-import MapLayers from "@/components/MapLayers.vue";
 import MapControls from "@/components/MapControls.vue";
+import MapLayers from "@/components/MapLayers.vue";
+import MapLegend from "@/components/MapLegend.vue";
 import { mapGetters, mapMutations, mapState } from "vuex";
 import ScatterChart from "@/components/ScatterChart.vue";
 
 // TODO: Pull scatter chart into its own component
 // TODO: Try to clip the hexbins to shape of Wisconsin   https://www.npmjs.com/package/turf-clip
-// TODO: fix x-axis labeling (remove - values)
+// TODO: fix x-axis labeling (remove negative values)
 
 const attribution =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
@@ -123,6 +126,7 @@ export default {
   components: {
     MapControls,
     MapLayers,
+    MapLegend,
     ScatterChart,
   },
   computed: {

@@ -83,9 +83,7 @@
   </v-card>
 </template>
 <script>
-// TODO: Add legends
 // TODO: Add text to About page
-// TODO: Make chart responsive
 
 import { mapMutations, mapState } from "vuex";
 const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
