@@ -172,7 +172,7 @@ export default {
                 beginAtZero: true,
                 max: 60,
                 stepSize: 5,
-                callback: (value, index, values) => {
+                callback: value => {
                   return value + "%";
                 },
               },
