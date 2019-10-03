@@ -86,8 +86,12 @@
             </v-card>
           </v-card>
         </l-control>
-        <l-control class="legend" position="bottomleft">
-          <v-card style="width: 280px; height: 140px">
+        <l-control
+          v-show="displayResiduals || displayTracts || displayWellsIDW || displayCancerRatesIDW"
+          class="legend"
+          position="bottomleft"
+        >
+          <v-card style="width: 360px; height: 120px">
             <MapLegend />
           </v-card>
         </l-control>
@@ -456,7 +460,7 @@ export default {
       return "#B1B6B6";
     },
     getResidualsFillColor(feature) {
-      const colorRamp = ["#a6611a", "#dfc27d", "#f5f5f5", "#80cdc1", "#018571"];
+      const colorRamp = ["#a6611a", "#dfc27d", "#ffffcc", "#80cdc1", "#018571"];
       const standardDev = this.standardDeviation;
       const classBreaks = [
         -2 * standardDev,
