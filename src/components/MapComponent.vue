@@ -316,7 +316,9 @@ export default {
       this.center = center;
     },
     createCensusTractContent(props) {
-      let propertyString = `<strong>Cancer Rate:</strong> ${props.canrate}`;
+      let propertyString = `<strong>Cancer Rate (count per 1000):</strong> ${(
+        props.canrate * 100
+      ).toFixed(0)}`;
       return propertyString;
     },
     createIDWContent(props) {
