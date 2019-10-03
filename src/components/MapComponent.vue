@@ -86,8 +86,8 @@
             </v-card>
           </v-card>
         </l-control>
-        <l-control style="position: fixed; bottom: 4%; right: 8%" class="legend">
-          <v-card style="width: 240px; height: 140px">
+        <l-control class="legend" position="bottomleft">
+          <v-card style="width: 280px; height: 140px">
             <MapLegend />
           </v-card>
         </l-control>
@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import { latLngBounds } from "leaflet";
+import { easyPrint, latLngBounds } from "leaflet";
 import MapControls from "@/components/MapControls.vue";
 import MapLayers from "@/components/MapLayers.vue";
 import MapLegend from "@/components/MapLegend.vue";
@@ -575,6 +575,21 @@ export default {
       setDisplayStatusChart: "chart/setDisplayStatus",
     }),
   },
+  mounted() {
+    this.$nextTick(() => {
+      easyPrint({
+        title: "Print map",
+        position: "topleft",
+        hideControlContainer: false,
+        hideClasses: [
+          "leaflet-control-easyPrint",
+          "v-navigation-drawer",
+          "v-navigation-drawer__prepend",
+        ],
+        sizeModes: ["Current", "A4Landscape"],
+      }).addTo(this.$refs.map.mapObject);
+    });
+  },
   props: {
     height: String,
     offsetHeight: String,
@@ -618,8 +633,8 @@ input {
 }
 
 .v-input .v-label {
-  line-height: 0.8rem !important;
-  font-size: 0.8rem !important;
+  line-height: 0.9rem !important;
+  font-size: 0.9rem !important;
 }
 
 .v-input--slot {
@@ -635,6 +650,9 @@ input {
 
 @media only screen and (max-width: 700px) {
   .chart {
+    display: none;
+  }
+  .leaflet-control-easyPrint {
     display: none;
   }
 }

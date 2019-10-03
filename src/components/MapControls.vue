@@ -1,13 +1,13 @@
 <template>
   <v-card>
-    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent width="250">
+    <v-navigation-drawer v-model="drawer" :mini-variant.sync="mini" permanent width="280">
       <template v-slot:prepend>
-        <v-list-item v-if="mini" dense>
+        <v-list-item v-if="mini" dense class="hideOnPrint">
           <v-btn icon @click.stop="mini = !mini">
             <v-icon>mdi-chevron-right</v-icon>
           </v-btn>
         </v-list-item>
-        <v-list-item v-if="!mini" dense>
+        <v-list-item v-if="!mini" dense class="hideOnPrint">
           <v-spacer></v-spacer>
           <v-btn small icon @click.stop="mini = !mini">
             <v-icon>mdi-chevron-left</v-icon>
@@ -71,7 +71,9 @@
                     color="primary"
                   ></v-checkbox>
                   <div v-if="rSquaredResults">
-                    <span>R Squared Value: {{rSquaredResults.toFixed(4)}}</span>
+                    <span
+                      class="subtitle-1 font-weight-bold"
+                    >R Squared Value: {{rSquaredResults.toFixed(4)}}</span>
                   </div>
                 </div>
               </v-col>
