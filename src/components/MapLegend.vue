@@ -1,14 +1,6 @@
 <template>
   <v-container>
     <div class="legendTitle">LEGEND</div>
-    <v-container class="legendPoint__container">
-      <v-row justify="end">
-        <v-col cols="1" align-self="center">
-          <div class="legendPoint"></div>
-        </v-col>
-        <v-col cols="10">Nitrate Sample Locations</v-col>
-      </v-row>
-    </v-container>
     <v-container v-if="tracts || tractsIDW || wellsIDW">
       <v-row no-gutters justify="center">
         <v-col cols="2">
@@ -26,7 +18,7 @@
         <v-col cols="2">
           <div class="legendClass idwLegendClass-5"></div>
         </v-col>
-        <v-col cols="12">
+        <v-col cols="12" class="mt-1">
           <div>Low ------- High</div>
         </v-col>
       </v-row>
@@ -35,29 +27,25 @@
       <v-row no-gutters justify="center">
         <v-col cols="2">
           <div class="legendClass residualsLegendClass-1"></div>
-          <div>-2.5</div>
+          <div>< -2</div>
         </v-col>
         <v-col cols="2">
           <div class="legendClass residualsLegendClass-2"></div>
-          <div>-1.5</div>
+          <div>2 to 1</div>
         </v-col>
         <v-col cols="2">
           <div class="legendClass residualsLegendClass-3"></div>
-          <div>-0.5</div>
-        </v-col>
-        <v-col cols="2">
-          <div class="legendClass residualsLegendClass-3"></div>
-          <div>0.5</div>
+          <div>-1 to 1</div>
         </v-col>
         <v-col cols="2">
           <div class="legendClass residualsLegendClass-4"></div>
-          <div>1.5</div>
+          <div>1 to 2</div>
         </v-col>
         <v-col cols="2">
           <div class="legendClass residualsLegendClass-5"></div>
-          <div>2.5</div>
+          <div>> 2</div>
         </v-col>
-        <v-col cols="12">Standard Deviation Breakpoints</v-col>
+        <v-col cols="12" class="mt-1">Residuals - Standard Deviation</v-col>
       </v-row>
     </v-container>
   </v-container>
@@ -84,25 +72,16 @@ export default {
 </script>
 
 <style>
-.legendPoint {
-  border-radius: 50%;
-  background: rgb(0, 131, 143);
-  height: 10px;
-  width: 10px;
-}
-
-.legendPoint__container {
-  margin-bottom: -20px;
-}
-
 .legendClass {
+  border: 1px solid grey;
   height: 30px;
   margin: 0;
   padding: 0;
+  opacity: 0.7;
 }
 
 .legendTitle {
-  margin-bottom: -20px;
+  font-weight: bold;
 }
 
 .idwLegendClass-1 {
@@ -128,7 +107,7 @@ export default {
   background: #dfc27d;
 }
 .residualsLegendClass-3 {
-  background: #f5f5f5;
+  background: #ffffcc;
 }
 .residualsLegendClass-4 {
   background: #80cdc1;
