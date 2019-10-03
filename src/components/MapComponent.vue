@@ -86,8 +86,12 @@
             </v-card>
           </v-card>
         </l-control>
-        <l-control style="position: fixed; bottom: 4%; right: 8%" class="legend">
-          <v-card style="width: 240px; height: 140px">
+        <l-control
+          v-show="displayResiduals || displayTracts || displayWellsIDW || displayCancerRatesIDW"
+          class="legend"
+          position="bottomleft"
+        >
+          <v-card style="width: 360px; height: 120px">
             <MapLegend />
           </v-card>
         </l-control>
@@ -98,7 +102,7 @@
 </template>
 
 <script>
-import { latLngBounds } from "leaflet";
+import { easyPrint, latLngBounds } from "leaflet";
 import MapControls from "@/components/MapControls.vue";
 import MapLayers from "@/components/MapLayers.vue";
 import MapLegend from "@/components/MapLegend.vue";
@@ -135,14 +139,14 @@ export default {
       const predictedValues = this.$store.state.chart.predictedValues;
       const interpolatedData = interpolatedValues.map(dataPoint => {
         return {
-          x: dataPoint[0].toFixed(4),
-          y: (dataPoint[1] * 100).toFixed(4),
+          x: dataPoint[0].toFixed(2),
+          y: (dataPoint[1] * 100).toFixed(2),
         };
       });
       const predictedData = predictedValues.map(dataPoint => {
         return {
-          x: dataPoint[0].toFixed(4),
-          y: (dataPoint[1] * 100).toFixed(4),
+          x: dataPoint[0].toFixed(2),
+          y: (dataPoint[1] * 100).toFixed(2),
         };
       });
       const data = { interpolatedData, predictedData };
@@ -170,14 +174,14 @@ export default {
             {
               scaleLabel: {
                 display: true,
-                labelString: "Cancer Rates",
+                labelString: "Cancer Rates (count per 1000)",
               },
               ticks: {
                 beginAtZero: true,
                 max: 60,
                 stepSize: 5,
                 callback: value => {
-                  return value + "%";
+                  return value;
                 },
               },
               type: "linear",
@@ -312,7 +316,9 @@ export default {
       this.center = center;
     },
     createCensusTractContent(props) {
-      let propertyString = `<strong>Cancer Rate:</strong> ${props.canrate}`;
+      let propertyString = `<strong>Cancer Rate (count per 1000):</strong> ${(
+        props.canrate * 100
+      ).toFixed(0)}`;
       return propertyString;
     },
     createIDWContent(props) {
@@ -325,16 +331,16 @@ export default {
        `;
       }
       if (props.cancerRate) {
-        propertyString += `<div><strong>Interpolated Cancer Rates:</strong> ${props.cancerRate.toFixed(
-          4
-        )}
+        propertyString += `<div><strong>Interpolated Cancer Rates (count per 1000):</strong> ${(
+          props.cancerRate * 100
+        ).toFixed(2)}
         </div>
        `;
       }
       if (props.predictedCancerRate) {
-        propertyString += `<div><strong>Predicted Cancer Rates:</strong> ${props.predictedCancerRate.toFixed(
-          4
-        )}
+        propertyString += `<div><strong>Predicted Cancer Rates (count per 1000):</strong> ${(
+          props.predictedCancerRate * 100
+        ).toFixed(2)}
         </div>
        `;
       }
@@ -456,7 +462,7 @@ export default {
       return "#B1B6B6";
     },
     getResidualsFillColor(feature) {
-      const colorRamp = ["#a6611a", "#dfc27d", "#f5f5f5", "#80cdc1", "#018571"];
+      const colorRamp = ["#a6611a", "#dfc27d", "#ffffcc", "#80cdc1", "#018571"];
       const standardDev = this.standardDeviation;
       const classBreaks = [
         -2 * standardDev,
@@ -575,6 +581,17 @@ export default {
       setDisplayStatusChart: "chart/setDisplayStatus",
     }),
   },
+  mounted() {
+    this.$nextTick(() => {
+      easyPrint({
+        title: "Print map",
+        position: "topleft",
+        hideControlContainer: false,
+        hideClasses: ["leaflet-control-easyPrint"],
+        sizeModes: ["Current", "A4Landscape"],
+      }).addTo(this.$refs.map.mapObject);
+    });
+  },
   props: {
     height: String,
     offsetHeight: String,
@@ -618,8 +635,8 @@ input {
 }
 
 .v-input .v-label {
-  line-height: 0.8rem !important;
-  font-size: 0.8rem !important;
+  line-height: 0.9rem !important;
+  font-size: 0.9rem !important;
 }
 
 .v-input--slot {
@@ -635,6 +652,9 @@ input {
 
 @media only screen and (max-width: 700px) {
   .chart {
+    display: none;
+  }
+  .leaflet-control-easyPrint {
     display: none;
   }
 }
