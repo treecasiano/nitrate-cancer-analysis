@@ -5,6 +5,7 @@ import "../node_modules/vuetify/dist/vuetify.min.css";
 import "../node_modules/leaflet/dist/leaflet.css";
 import L from "leaflet";
 delete L.Icon.Default.prototype._getIconUrl;
+import "leaflet-easyprint";
 import router from "./router";
 import store from "./store/index";
 import VueForceNextTick from "vue-force-next-tick";
