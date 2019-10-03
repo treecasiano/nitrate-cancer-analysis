@@ -170,14 +170,14 @@ export default {
             {
               scaleLabel: {
                 display: true,
-                labelString: "Cancer Rates",
+                labelString: "Cancer Rates (count per 1000)",
               },
               ticks: {
                 beginAtZero: true,
                 max: 60,
                 stepSize: 5,
                 callback: value => {
-                  return value + "%";
+                  return value;
                 },
               },
               type: "linear",
@@ -325,16 +325,16 @@ export default {
        `;
       }
       if (props.cancerRate) {
-        propertyString += `<div><strong>Interpolated Cancer Rates:</strong> ${props.cancerRate.toFixed(
+        propertyString += `<div><strong>Interpolated Cancer Rates (count per 1000):</strong> ${props.cancerRate.toFixed(
           4
-        )}
+        ) * 100}
         </div>
        `;
       }
       if (props.predictedCancerRate) {
-        propertyString += `<div><strong>Predicted Cancer Rates:</strong> ${props.predictedCancerRate.toFixed(
+        propertyString += `<div><strong>Predicted Cancer Rates (count per 1000):</strong> ${props.predictedCancerRate.toFixed(
           4
-        )}
+        ) * 100}
         </div>
        `;
       }
@@ -581,11 +581,7 @@ export default {
         title: "Print map",
         position: "topleft",
         hideControlContainer: false,
-        hideClasses: [
-          "leaflet-control-easyPrint",
-          "v-navigation-drawer",
-          "v-navigation-drawer__prepend",
-        ],
+        hideClasses: ["leaflet-control-easyPrint"],
         sizeModes: ["Current", "A4Landscape"],
       }).addTo(this.$refs.map.mapObject);
     });
