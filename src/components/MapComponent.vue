@@ -135,14 +135,14 @@ export default {
       const predictedValues = this.$store.state.chart.predictedValues;
       const interpolatedData = interpolatedValues.map(dataPoint => {
         return {
-          x: dataPoint[0].toFixed(4),
-          y: (dataPoint[1] * 100).toFixed(4),
+          x: dataPoint[0].toFixed(2),
+          y: (dataPoint[1] * 100).toFixed(2),
         };
       });
       const predictedData = predictedValues.map(dataPoint => {
         return {
-          x: dataPoint[0].toFixed(4),
-          y: (dataPoint[1] * 100).toFixed(4),
+          x: dataPoint[0].toFixed(2),
+          y: (dataPoint[1] * 100).toFixed(2),
         };
       });
       const data = { interpolatedData, predictedData };
@@ -325,16 +325,16 @@ export default {
        `;
       }
       if (props.cancerRate) {
-        propertyString += `<div><strong>Interpolated Cancer Rates (count per 1000):</strong> ${props.cancerRate.toFixed(
-          4
-        ) * 100}
+        propertyString += `<div><strong>Interpolated Cancer Rates (count per 1000):</strong> ${(
+          props.cancerRate * 100
+        ).toFixed(2)}
         </div>
        `;
       }
       if (props.predictedCancerRate) {
-        propertyString += `<div><strong>Predicted Cancer Rates (count per 1000):</strong> ${props.predictedCancerRate.toFixed(
-          4
-        ) * 100}
+        propertyString += `<div><strong>Predicted Cancer Rates (count per 1000):</strong> ${(
+          props.predictedCancerRate * 100
+        ).toFixed(2)}
         </div>
        `;
       }
