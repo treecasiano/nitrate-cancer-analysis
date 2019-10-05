@@ -75,6 +75,15 @@
                     <span
                       class="subtitle-1 font-weight-bold"
                     >R Squared Value: {{rSquaredResults.toFixed(4)}}</span>
+                    <div>This model explains ~{{(rSquaredResults*100).toFixed(2)}}% of the variance in the cancer rates.</div>
+                  </div>
+                  <div v-if="slope">
+                    <span
+                      v-if="slope > 0"
+                    >There is a positive correlation between nitrate levels and cancer rates.</span>
+                    <span
+                      v-if="slope < 0"
+                    >There is a negative correlation between nitrate levels and cancer rates.</span>
                   </div>
                 </div>
               </v-col>
@@ -86,8 +95,6 @@
   </v-card>
 </template>
 <script>
-// TODO: Add text to About page
-
 import { mapMutations, mapState } from "vuex";
 const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
 const { cloneDeep } = require("lodash");
@@ -110,6 +117,7 @@ export default {
     ...mapState({
       residualsLoading: state => state.residuals.loading,
       rSquaredResults: state => state.residuals.rSquared,
+      slope: state => state.residuals.slope,
       tractCentroids: state => state.tracts.centroids,
       tractsData: state => state.tracts.data,
       wellsData: state => state.wells.data,
@@ -196,7 +204,7 @@ export default {
         // based on the slope and intercept from the linear regression results
         // https://simplestatistics.org/docs/#linear-regression-line
         const line = linearRegressionLine(linearRegressionResults);
-
+        this.setSlope(linearRegressionResults.m);
         // reclone features
         const reclonedFeatures = cloneDeep(clonedFeatures);
         reclonedFeatures.forEach(feature => {
@@ -267,6 +275,7 @@ export default {
       setResidualsLoading: "residuals/setLoadingStatus",
       setResiduals: "residuals/setHexbins",
       setRSquared: "residuals/setRSquared",
+      setSlope: "residuals/setSlope",
       setWellsIDW: "wells/setIDW",
       setTractsIDW: "tracts/setIDW",
     }),
