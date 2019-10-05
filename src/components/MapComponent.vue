@@ -184,8 +184,7 @@ export default {
           y: standardDevOfResidual.toFixed(4),
         };
       });
-      const data = { residualsData };
-      return this.fillChartResiduals(data);
+      return this.fillChartResiduals(residualsData);
     },
     chartOptions() {
       const options = {
@@ -486,8 +485,8 @@ export default {
       let labels = [];
       let residualsData = [];
       if (chartData) {
-        labels = Object.keys(chartData.residualsData);
-        residualsData = Object.values(chartData.residualsData);
+        labels = Object.keys(chartData);
+        residualsData = Object.values(chartData);
       }
       chartConfig = {
         labels,
