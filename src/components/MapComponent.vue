@@ -176,12 +176,11 @@ export default {
       const { features } = this.$store.state.residuals.hexbins;
       const residualsData = features.map(feature => {
         const {
-          properties: { residual, predictedCancerRate },
+          properties: { residual, predictedCancerRate, stdDev },
         } = feature;
-        const standardDevOfResidual = residual / this.standardDeviation;
         return {
           x: predictedCancerRate.toFixed(4),
-          y: standardDevOfResidual.toFixed(4),
+          y: stdDev.toFixed(4),
         };
       });
       return this.fillChartResiduals(residualsData);
