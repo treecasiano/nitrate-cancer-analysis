@@ -73,7 +73,13 @@
           <MapControls />
         </l-control>
         <l-control v-if="displayChart" class="chart" style="position: fixed; top: 7%; left: 30%;">
-          <v-card>
+          <div>
+            <v-radio-group v-model="radios" row class="mt-0">
+              <v-radio label="Observed & Predicted Rates" value="radio1" color="primary"></v-radio>
+              <v-radio label="Residuals vs. Predicted Plot" value="radio2" color="primary"></v-radio>
+            </v-radio-group>
+          </div>
+          <v-card v-if="radios === 'radio1'">
             <v-card-title dense>
               <div class="overline">Observed & Predicted Cancer Rates</div>
               <v-spacer></v-spacer>
@@ -81,9 +87,25 @@
                 <v-icon>close</v-icon>
               </v-btn>
             </v-card-title>
-            <v-card color="white" style="height: 400px; width: 400px;">
+            <v-card color="white" style="height: 500px; width: 500px;">
               <ScatterChart :chart-data="chartData" :options="chartOptions" legendId="legend"></ScatterChart>
             </v-card>
+          </v-card>
+          <v-card v-if="radios === 'radio2'">
+            <v-card-title dense>
+              <div class="overline">Residuals vs. Predicted Plot</div>
+              <v-spacer></v-spacer>
+              <v-btn small icon @click="setDisplayStatusChart(false)">
+                <v-icon>close</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card color="white" style="height: 500px; width: 500px;">
+              <ScatterChart
+                :chart-data="chartDataResiduals"
+                :options="chartOptionsResiduals"
+                legendId="legend"
+              ></ScatterChart>
+            </v-card>If the model is specified correctly, this plot should appear random with little structure.
           </v-card>
         </l-control>
         <l-control
@@ -109,9 +131,7 @@ import MapLegend from "@/components/MapLegend.vue";
 import { mapGetters, mapMutations, mapState } from "vuex";
 import ScatterChart from "@/components/ScatterChart.vue";
 
-// TODO: Pull scatter chart into its own component
 // TODO: Try to clip the hexbins to shape of Wisconsin   https://www.npmjs.com/package/turf-clip
-// TODO: fix x-axis labeling (remove negative values)
 
 const attribution =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
@@ -139,18 +159,33 @@ export default {
       const predictedValues = this.$store.state.chart.predictedValues;
       const interpolatedData = interpolatedValues.map(dataPoint => {
         return {
-          x: dataPoint[0].toFixed(2),
-          y: (dataPoint[1] * 100).toFixed(2),
+          x: dataPoint[0].toFixed(4),
+          y: dataPoint[1].toFixed(4),
         };
       });
       const predictedData = predictedValues.map(dataPoint => {
         return {
-          x: dataPoint[0].toFixed(2),
-          y: (dataPoint[1] * 100).toFixed(2),
+          x: dataPoint[0].toFixed(4),
+          y: dataPoint[1].toFixed(4),
         };
       });
       const data = { interpolatedData, predictedData };
       return this.fillChart(data);
+    },
+    chartDataResiduals() {
+      const { features } = this.$store.state.residuals.hexbins;
+      const residualsData = features.map(feature => {
+        const {
+          properties: { residual, predictedCancerRate },
+        } = feature;
+        const standardDevOfResidual = residual / this.standardDeviation;
+        return {
+          x: predictedCancerRate.toFixed(4),
+          y: standardDevOfResidual.toFixed(4),
+        };
+      });
+      const data = { residualsData };
+      return this.fillChartResiduals(data);
     },
     chartOptions() {
       const options = {
@@ -163,7 +198,7 @@ export default {
               },
               ticks: {
                 beginAtZero: true,
-                max: 15,
+                max: 18,
                 stepSize: 1,
               },
               type: "linear",
@@ -174,12 +209,55 @@ export default {
             {
               scaleLabel: {
                 display: true,
-                labelString: "Cancer Rates (count per 1000)",
+                labelString: "Cancer Rates",
               },
               ticks: {
                 beginAtZero: true,
-                max: 60,
-                stepSize: 5,
+                max: 0.6,
+                stepSize: 0.05,
+                callback: value => {
+                  return value + "%";
+                },
+              },
+              type: "linear",
+              position: "bottom",
+            },
+          ],
+        },
+      };
+      return options;
+    },
+    chartOptionsResiduals() {
+      const options = {
+        scales: {
+          xAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: "PredictedValues",
+              },
+              ticks: {
+                beginAtZero: true,
+                max: 0.3,
+                stepSize: 0.05,
+                callback: value => {
+                  return value + "%";
+                },
+              },
+              type: "linear",
+              position: "bottom",
+            },
+          ],
+          yAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: "Standard Deviation of Predicted Values",
+              },
+              ticks: {
+                beginAtZero: true,
+                max: 8,
+                stepSize: 1,
                 callback: value => {
                   return value;
                 },
@@ -304,6 +382,7 @@ export default {
       markersArray: [],
       minZoom: 6,
       colorRamp: ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"],
+      radios: "radio1",
       wellDataColor: "#ffffff",
       wellDataFillColor: "rgb(0, 131, 143)",
     };
@@ -316,9 +395,9 @@ export default {
       this.center = center;
     },
     createCensusTractContent(props) {
-      let propertyString = `<strong>Cancer Rate (count per 1000):</strong> ${(
-        props.canrate * 100
-      ).toFixed(0)}`;
+      let propertyString = `<strong>Cancer Rate:</strong> ${props.canrate.toFixed(
+        2
+      )}%`;
       return propertyString;
     },
     createIDWContent(props) {
@@ -331,16 +410,16 @@ export default {
        `;
       }
       if (props.cancerRate) {
-        propertyString += `<div><strong>Interpolated Cancer Rates (count per 1000):</strong> ${(
-          props.cancerRate * 100
-        ).toFixed(2)}
+        propertyString += `<div><strong>Interpolated Cancer Rates:</strong> ${props.cancerRate.toFixed(
+          4
+        )}
         </div>
        `;
       }
       if (props.predictedCancerRate) {
-        propertyString += `<div><strong>Predicted Cancer Rates (count per 1000):</strong> ${(
-          props.predictedCancerRate * 100
-        ).toFixed(2)}
+        propertyString += `<div><strong>Predicted Cancer Rates:</strong> ${props.predictedCancerRate.toFixed(
+          4
+        )}
         </div>
        `;
       }
@@ -389,6 +468,27 @@ export default {
             label: "Predicted Values",
             backgroundColor: "rgb(0, 131, 143)",
             data: predictedData,
+          },
+        ],
+        borderWidth: 3,
+      };
+      return chartConfig;
+    },
+    fillChartResiduals(chartData) {
+      let chartConfig = {};
+      let labels = [];
+      let residualsData = [];
+      if (chartData) {
+        labels = Object.keys(chartData.residualsData);
+        residualsData = Object.values(chartData.residualsData);
+      }
+      chartConfig = {
+        labels,
+        datasets: [
+          {
+            label: "Standard Deviation of Predicted Values",
+            backgroundColor: "rgb(0, 131, 143)",
+            data: residualsData,
           },
         ],
         borderWidth: 3,
@@ -650,7 +750,7 @@ input {
 
 /* MEDIA QUERIES */
 
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 400px) {
   .chart {
     display: none;
   }
@@ -659,10 +759,10 @@ input {
   }
 }
 
-@media only screen and (max-height: 500px) {
+@media only screen and (max-height: 400px) {
   .legend {
     display: none;
-    right: 15% !important;
+    /* right: 15% !important; */
   }
   .chart {
     display: none;

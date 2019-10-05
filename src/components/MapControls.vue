@@ -65,7 +65,7 @@
                   <v-checkbox
                     :disabled="!wellsIDW.features"
                     v-model="displayStatusChart"
-                    label="Display Chart of Interpolated and Predicted Values"
+                    label="Display Charts"
                     data-cy="checkbox--chart"
                     class="checkbox--chart"
                     color="primary"
@@ -202,10 +202,6 @@ export default {
           const {
             properties: { nitr_ran, cancerRate },
           } = feature;
-          if (nitr_ran < 0) {
-            console.log("nitr_ran is less than 0", nitr_ran);
-            // TODO(): set interpolated nitrate rate to 0 if interpolation makes it a negative number
-          }
           const predictedCancerRate = line(nitr_ran);
           const residual = predictedCancerRate - cancerRate;
           feature.properties.predictedCancerRate = predictedCancerRate;
