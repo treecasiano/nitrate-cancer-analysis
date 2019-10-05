@@ -44,6 +44,10 @@
                   :min="minHex"
                   thumb-label="always"
                 ></v-slider>
+                <div
+                  v-if="hexSize<5"
+                  class="text-left mb-1"
+                >If hexbin size is less than 5km, the calculation can take several minutes.</div>
                 <v-btn @click="interpolate" color="secondary" :disabled="!valid" small>Submit</v-btn>
               </v-col>
               <v-col class="mapControls__results">
@@ -53,23 +57,20 @@
               </v-col>
               <v-col cols="12">
                 <v-flex v-if="residualsLoading">
-                  <div
-                    v-if="hexSize<5"
-                    class="text-left"
-                  >If hexbin size is less than 5km, the calculation can take several minutes.</div>
                   <div>
                     <v-icon color="primary">fas fa-spin fa-spinner</v-icon>
                   </div>
                 </v-flex>
                 <div v-else class="text-left">
-                  <v-checkbox
-                    :disabled="!wellsIDW.features"
-                    v-model="displayStatusChart"
-                    label="Display Charts"
-                    data-cy="checkbox--chart"
-                    class="checkbox--chart"
-                    color="primary"
-                  ></v-checkbox>
+                  <div class="checkbox--chart">
+                    <v-checkbox
+                      :disabled="!wellsIDW.features"
+                      v-model="displayStatusChart"
+                      label="Display Charts"
+                      data-cy="checkbox--chart"
+                      color="primary"
+                    ></v-checkbox>
+                  </div>
                   <div v-if="rSquaredResults">
                     <span
                       class="subtitle-1 font-weight-bold"
@@ -278,13 +279,13 @@ export default {
 .mapControls__results {
   font-weight: bold;
 }
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 500px) {
   .checkbox--chart {
     display: none;
   }
 }
 
-@media only screen and (max-height: 500px) {
+@media only screen and (max-height: 400px) {
   .checkbox--chart {
     display: none;
   }

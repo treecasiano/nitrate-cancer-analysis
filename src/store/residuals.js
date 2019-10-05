@@ -16,6 +16,12 @@ const mutations = {
       return residual;
     });
     state.standardDeviation = standardDeviation(residualsArray);
+    features.forEach(feature => {
+      const {
+        properties: { residual },
+      } = feature;
+      feature.properties.stdDev = residual / state.standardDeviation;
+    });
     state.hexbins = hexbins;
   },
   setLoadingStatus(state, loading) {

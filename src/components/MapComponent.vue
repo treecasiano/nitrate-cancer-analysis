@@ -430,6 +430,13 @@ export default {
         </div>
        `;
       }
+      if (props.stdDev) {
+        propertyString += `<div><strong>Standard Deviation of Residual:</strong> ${props.stdDev.toFixed(
+          4
+        )}
+        </div>
+       `;
+      }
       return propertyString;
     },
     createMarkers(geojson) {
@@ -750,7 +757,7 @@ input {
 
 /* MEDIA QUERIES */
 
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 500px) {
   .chart {
     display: none;
   }
@@ -762,7 +769,6 @@ input {
 @media only screen and (max-height: 400px) {
   .legend {
     display: none;
-    /* right: 15% !important; */
   }
   .chart {
     display: none;
