@@ -62,7 +62,7 @@
                   </div>
                 </v-flex>
                 <div v-else class="text-left">
-                  <div class="checkbox--chart">
+                  <div class="checkbox--chart" v-if="rSquaredResults">
                     <v-checkbox
                       :disabled="!wellsIDW.features"
                       v-model="displayStatusChart"
