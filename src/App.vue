@@ -31,7 +31,6 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: var(--v-primary-base);
 }
 
 #nav a {
