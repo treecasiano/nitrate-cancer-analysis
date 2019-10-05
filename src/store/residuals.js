@@ -30,6 +30,9 @@ const mutations = {
   setRSquared(state, rSquared) {
     state.rSquared = rSquared;
   },
+  setSlope(state, slope) {
+    state.slope = slope;
+  },
 };
 
 const state = {
@@ -38,6 +41,7 @@ const state = {
   hexbins: {},
   loading: false,
   rSquared: null,
+  slope: null,
   standardDeviation: 0,
 };
 
