@@ -3,16 +3,10 @@
     <div>
       <v-toolbar dense id="nav">
         <v-toolbar-title>Nitrate Levels and Cancer Incidence in Wisconsin</v-toolbar-title>
-
         <div class="flex-grow-1"></div>
-
         <v-toolbar-items>
-          <v-btn text>
-            <router-link to="/">Home</router-link>
-          </v-btn>
-          <v-btn text>
-            <router-link to="/about">About</router-link>
-          </v-btn>
+          <router-link to="/">Home</router-link>
+          <router-link to="/about">About</router-link>
         </v-toolbar-items>
       </v-toolbar>
     </div>
@@ -37,12 +31,13 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: var(--v-primary-base);
 }
 
 #nav a {
   font-weight: bold;
   color: var(--v-primary-base);
+  display: block;
+  padding: 10px;
 }
 
 #nav a.router-link-exact-active {

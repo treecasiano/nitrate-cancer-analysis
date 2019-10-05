@@ -16,6 +16,12 @@ const mutations = {
       return residual;
     });
     state.standardDeviation = standardDeviation(residualsArray);
+    features.forEach(feature => {
+      const {
+        properties: { residual },
+      } = feature;
+      feature.properties.stdDev = residual / state.standardDeviation;
+    });
     state.hexbins = hexbins;
   },
   setLoadingStatus(state, loading) {
@@ -23,6 +29,9 @@ const mutations = {
   },
   setRSquared(state, rSquared) {
     state.rSquared = rSquared;
+  },
+  setSlope(state, slope) {
+    state.slope = slope;
   },
 };
 
@@ -32,6 +41,7 @@ const state = {
   hexbins: {},
   loading: false,
   rSquared: null,
+  slope: null,
   standardDeviation: 0,
 };
 

@@ -44,6 +44,10 @@
                   :min="minHex"
                   thumb-label="always"
                 ></v-slider>
+                <div
+                  v-if="hexSize<5"
+                  class="text-left mb-1"
+                >If hexbin size is less than 5km, the calculation can take several minutes.</div>
                 <v-btn @click="interpolate" color="secondary" :disabled="!valid" small>Submit</v-btn>
               </v-col>
               <v-col class="mapControls__results">
@@ -53,27 +57,33 @@
               </v-col>
               <v-col cols="12">
                 <v-flex v-if="residualsLoading">
-                  <div
-                    v-if="hexSize<5"
-                    class="text-left"
-                  >If hexbin size is less than 5km, the calculation can take several minutes.</div>
                   <div>
                     <v-icon color="primary">fas fa-spin fa-spinner</v-icon>
                   </div>
                 </v-flex>
                 <div v-else class="text-left">
-                  <v-checkbox
-                    :disabled="!wellsIDW.features"
-                    v-model="displayStatusChart"
-                    label="Display Chart of Interpolated and Predicted Values"
-                    data-cy="checkbox--chart"
-                    class="checkbox--chart"
-                    color="primary"
-                  ></v-checkbox>
+                  <div class="checkbox--chart" v-if="rSquaredResults">
+                    <v-checkbox
+                      :disabled="!wellsIDW.features"
+                      v-model="displayStatusChart"
+                      label="Display Charts"
+                      data-cy="checkbox--chart"
+                      color="primary"
+                    ></v-checkbox>
+                  </div>
                   <div v-if="rSquaredResults">
                     <span
                       class="subtitle-1 font-weight-bold"
                     >R Squared Value: {{rSquaredResults.toFixed(4)}}</span>
+                    <div>This model explains ~{{(rSquaredResults*100).toFixed(2)}}% of the variance in the cancer rates.</div>
+                  </div>
+                  <div v-if="slope">
+                    <span
+                      v-if="slope > 0"
+                    >There is a positive correlation between nitrate levels and cancer rates.</span>
+                    <span
+                      v-if="slope < 0"
+                    >There is a negative correlation between nitrate levels and cancer rates.</span>
                   </div>
                 </div>
               </v-col>
@@ -85,8 +95,6 @@
   </v-card>
 </template>
 <script>
-// TODO: Add text to About page
-
 import { mapMutations, mapState } from "vuex";
 const { centroid, collect, interpolate, nearestPoint } = require("@turf/turf");
 const { cloneDeep } = require("lodash");
@@ -109,6 +117,7 @@ export default {
     ...mapState({
       residualsLoading: state => state.residuals.loading,
       rSquaredResults: state => state.residuals.rSquared,
+      slope: state => state.residuals.slope,
       tractCentroids: state => state.tracts.centroids,
       tractsData: state => state.tracts.data,
       wellsData: state => state.wells.data,
@@ -195,17 +204,13 @@ export default {
         // based on the slope and intercept from the linear regression results
         // https://simplestatistics.org/docs/#linear-regression-line
         const line = linearRegressionLine(linearRegressionResults);
-
+        this.setSlope(linearRegressionResults.m);
         // reclone features
         const reclonedFeatures = cloneDeep(clonedFeatures);
         reclonedFeatures.forEach(feature => {
           const {
             properties: { nitr_ran, cancerRate },
           } = feature;
-          if (nitr_ran < 0) {
-            console.log("nitr_ran is less than 0", nitr_ran);
-            // TODO(): set interpolated nitrate rate to 0 if interpolation makes it a negative number
-          }
           const predictedCancerRate = line(nitr_ran);
           const residual = predictedCancerRate - cancerRate;
           feature.properties.predictedCancerRate = predictedCancerRate;
@@ -270,6 +275,7 @@ export default {
       setResidualsLoading: "residuals/setLoadingStatus",
       setResiduals: "residuals/setHexbins",
       setRSquared: "residuals/setRSquared",
+      setSlope: "residuals/setSlope",
       setWellsIDW: "wells/setIDW",
       setTractsIDW: "tracts/setIDW",
     }),
@@ -282,13 +288,13 @@ export default {
 .mapControls__results {
   font-weight: bold;
 }
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 500px) {
   .checkbox--chart {
     display: none;
   }
 }
 
-@media only screen and (max-height: 500px) {
+@media only screen and (max-height: 400px) {
   .checkbox--chart {
     display: none;
   }
