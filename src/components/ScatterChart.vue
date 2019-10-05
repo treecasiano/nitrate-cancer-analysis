@@ -12,11 +12,7 @@ export default {
     this.renderChart(this.chartData, this.options);
   },
   watch: {
-    chartData() {
-      const legendContainer = document.getElementById(this.legendId);
-      legendContainer.innerHTML = "";
-      legendContainer.innerHTML = this.generateLegend();
-    },
+    chartData() {},
   },
 };
 </script>
