@@ -12,7 +12,7 @@
     </p>
     <p>The results of the linear regression are displayed in a map of the standard deviation of residuals and in two scatterplots that show the variance in the predicted values.</p>
     <h2>About the Data</h2>
-    <p>Please note that the data used in this application is not real and was provided by the school. It should not be used to draw definitive conclusions about the relationship between nitrates and cancer. Also, because the cancer rates were interpolated so they could be collected into the same spatial units as the nitrates, there is would be some loss of data accuracy even if the data were real. The purpose of the application is to demonstrate skill in web development and spatial analysis</p>
+    <p>Please note that the data used in this application is not real and was provided by the school. It should not be used to draw definitive conclusions about the relationship between nitrates and cancer. Also, because the cancer rates were interpolated so they could be collected into the same spatial units as the nitrates, there is some loss of data accuracy even if the data were real. The purpose of the application is to demonstrate skill in web development and spatial analysis</p>
     <h2>About the Developer</h2>
     <p>
       <a href="http://www.treecasiano.com">Tree Casiano</a> is a software developer working for a healthcare IT company in Portland, OR.
