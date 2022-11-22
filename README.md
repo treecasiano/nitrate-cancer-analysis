@@ -2,7 +2,7 @@
 
 ## About this Application
 
-This app allows users to analyze the relationship between cancer incidence and nitrate levels in Wisconsin at the census tract level. It is one of two projects that satisfy requirements for the Capstone course in the University of Wisconsin-Madison's MS program in Cartography and GIS Development (a.k.a "Web Map Programmin").
+This app allows users to analyze the relationship between cancer incidence and nitrate levels in Wisconsin at the census tract level. It is one of two projects that satisfy requirements for the Capstone course in the University of Wisconsin-Madison's MS program in Cartography and GIS Development (a.k.a "Web Map Programming").
 
 ## Technologies Used
 
