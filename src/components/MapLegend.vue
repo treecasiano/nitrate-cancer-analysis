@@ -27,7 +27,7 @@
       <v-row no-gutters justify="center">
         <v-col cols="2">
           <div class="legendClass residualsLegendClass-1"></div>
-          <div>< -2</div>
+          <div>&lt; -2</div>
         </v-col>
         <v-col cols="2">
           <div class="legendClass residualsLegendClass-2"></div>
@@ -43,7 +43,7 @@
         </v-col>
         <v-col cols="2">
           <div class="legendClass residualsLegendClass-5"></div>
-          <div>> 2</div>
+          <div>&gt; 2</div>
         </v-col>
         <v-col cols="12" class="mt-1">Residuals - Standard Deviation</v-col>
       </v-row>
@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapState } from "vuex";
 
 export default {
   computed: {

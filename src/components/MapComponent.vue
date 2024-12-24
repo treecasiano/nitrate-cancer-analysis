@@ -11,11 +11,18 @@
         @update:zoom="zoomUpdated"
         @update:center="centerUpdated"
         @update:bounds="boundsUpdated"
-        :options="{zoomControl: false}"
-        v-bind:style="`height: calc(${height}vh - ${offsetHeight}px); width: ${width}%;`"
+        :options="{ zoomControl: false }"
+        v-bind:style="
+          `height: calc(${height}vh - ${offsetHeight}px); width: ${width}%;`
+        "
       >
         <l-control position="topright">
-          <v-btn dark color="primary" @click="resetMapView" style="width: 80px;">
+          <v-btn
+            dark
+            color="primary"
+            @click="resetMapView"
+            style="width: 80px;"
+          >
             <v-icon>home</v-icon>
           </v-btn>
         </l-control>
@@ -40,7 +47,7 @@
             <l-popup>
               <div>
                 <strong>Nitrate Level (ppm)</strong>
-                : {{item.props.nitr_ran.toFixed(2)}}
+                : {{ item.props.nitr_ran.toFixed(2) }}
               </div>
             </l-popup>
           </l-circle-marker>
@@ -53,7 +60,11 @@
           ></l-geo-json>
         </div>
         <div v-if="displayWellsIDW && idwWells.features">
-          <l-geo-json :geojson="idwWells" :options="optionsIDW" :options-style="stylesIDW"></l-geo-json>
+          <l-geo-json
+            :geojson="idwWells"
+            :options="optionsIDW"
+            :options-style="stylesIDW"
+          ></l-geo-json>
         </div>
         <div v-if="displayCancerRatesIDW && idwTracts.features">
           <l-geo-json
@@ -72,11 +83,23 @@
         <l-control position="topleft">
           <MapControls />
         </l-control>
-        <l-control v-if="displayChart" class="chart" style="position: fixed; top: 7%; left: 30%;">
+        <l-control
+          v-if="displayChart"
+          class="chart"
+          style="position: fixed; top: 7%; left: 30%;"
+        >
           <div>
             <v-radio-group v-model="radios" row class="mt-0">
-              <v-radio label="Observed & Predicted Rates" value="radio1" color="primary"></v-radio>
-              <v-radio label="Residuals vs. Predicted Plot" value="radio2" color="primary"></v-radio>
+              <v-radio
+                label="Observed & Predicted Rates"
+                value="radio1"
+                color="primary"
+              ></v-radio>
+              <v-radio
+                label="Residuals vs. Predicted Plot"
+                value="radio2"
+                color="primary"
+              ></v-radio>
             </v-radio-group>
           </div>
           <v-card v-if="radios === 'radio1'">
@@ -88,7 +111,11 @@
               </v-btn>
             </v-card-title>
             <v-card color="white" style="height: 500px; width: 500px;">
-              <ScatterChart :chart-data="chartData" :options="chartOptions" legendId="legend"></ScatterChart>
+              <ScatterChart
+                :chart-data="chartData"
+                :options="chartOptions"
+                legendId="legend"
+              ></ScatterChart>
             </v-card>
           </v-card>
           <v-card v-if="radios === 'radio2'">
@@ -104,12 +131,18 @@
                 :chart-data="chartDataResiduals"
                 :options="chartOptionsResiduals"
                 legendId="legend"
-              ></ScatterChart>
-            </v-card>If the model is specified correctly, this plot should appear random with little structure.
+              ></ScatterChart> </v-card
+            >If the model is specified correctly, this plot should appear random
+            with little structure.
           </v-card>
         </l-control>
         <l-control
-          v-show="displayResiduals || displayTracts || displayWellsIDW || displayCancerRatesIDW"
+          v-show="
+            displayResiduals ||
+              displayTracts ||
+              displayWellsIDW ||
+              displayCancerRatesIDW
+          "
           class="legend"
           position="bottomleft"
         >
@@ -176,7 +209,7 @@ export default {
       const { features } = this.$store.state.residuals.hexbins;
       const residualsData = features.map(feature => {
         const {
-          properties: { residual, predictedCancerRate, stdDev },
+          properties: { predictedCancerRate, stdDev },
         } = feature;
         return {
           x: predictedCancerRate.toFixed(4),
