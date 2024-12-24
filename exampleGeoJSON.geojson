@@ -1,0 +1,124 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.58,
+          40.47
+        ]
+      },
+      "properties": {
+        "user_id": 1,
+        "username": "blackbird127",
+        "first_name": "Tereza",
+        "last_name": "Averescu",
+        "favorite_color": "teal"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.41,
+          45.31
+        ]
+      },
+      "properties": {
+        "user_id": 2,
+        "username": "rkd",
+        "first_name": "Roberto",
+        "last_name": "Serra",
+        "favorite_color": "black"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.35,
+          45.3
+        ]
+      },
+      "properties": {
+        "user_id": 3,
+        "username": "northstar27",
+        "first_name": "Anthea",
+        "last_name": "Christopoulos",
+        "favorite_color": "chartreuse"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105,
+          39.45
+        ]
+      },
+      "properties": {
+        "user_id": 4,
+        "username": "meridianprime",
+        "first_name": "Cristofer",
+        "last_name": "Romano",
+        "favorite_color": "burgundy"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -116.33,
+          43.36
+        ]
+      },
+      "properties": {
+        "user_id": 5,
+        "username": "melodia",
+        "first_name": "Adalynd",
+        "last_name": "Jones",
+        "favorite_color": "black"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -96.46,
+          32.46
+        ]
+      },
+      "properties": {
+        "user_id": 6,
+        "username": "mixolydia",
+        "first_name": "Yzobel",
+        "last_name": "Mirren",
+        "favorite_color": "green"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.45,
+          46.7
+        ]
+      },
+      "properties": {
+        "user_id": 7,
+        "username": "craftywench",
+        "first_name": "Evelyn",
+        "last_name": "Dunlap",
+        "favorite_color": "navy blue"
+      }
+    }
+  ]
+}
